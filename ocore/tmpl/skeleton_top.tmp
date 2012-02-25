@@ -1,0 +1,93 @@
+## -*- coding: utf-8 -*-
+<%inherit file="skeleton.tmp"/>
+<%namespace name="io_dev" file="io_dev.tmp"/>
+<%namespace name="core_c" file="core_c.tmp"/>
+${next.unisim_lib()}
+entity top is
+
+<%block name="entity">
+	port (
+		MCLK1	: in  STD_LOGIC;
+		RS_RX	: in  STD_LOGIC;
+		RS_TX	: out  STD_LOGIC;
+
+		ZA		: out std_logic_vector(19 downto 0);	-- Address
+		XWA		: out std_logic;	-- Write Enable
+		ZD		: inout std_logic_vector(31 downto 0);	-- Data InOut
+		ZCLKMA	: out std_logic_vector(1 downto 0);	-- clk
+
+---- fixed 
+		XE1		: out std_logic := '0'; -- enable
+		E2A		: out std_logic := '1'; -- enable
+		XE3		: out std_logic := '0'; -- enable
+		XZBE	: out std_logic_vector(3 downto 0) := "0000"; -- byte access
+		XGA		: out std_logic := '0'; -- output enable
+		XZCKE	: out std_logic := '0'; -- clk enable
+		ADVA	: out std_logic := '0'; -- burst access off
+		XFT		: out std_logic := '0'; -- Flow Through mode on
+		XLBO	: out std_logic := '1'; -- burst access off
+		ZZA		: out std_logic := '0' -- sleep mode off	
+);
+</%block>
+
+end top;
+architecture board of top is
+	component core_c is
+${core_c.entity()}
+	end component;
+	component io_dev is
+${io_dev.entity()}
+	end component;
+
+	signal reset : std_logic := '1';
+	signal count : std_logic_vector(3 downto 0) := "1111";
+
+	signal cpu_out : ${oc.io_bus_t()};
+	signal cpu_in : ${oc.io_bus_t()};
+	signal cpu_wr : ${oc.io_flag_t()};
+	signal cpu_rd : ${oc.io_flag_t()};
+	signal nyet   : ${oc.io_flag_t()};
+
+	signal pipe   :std_logic;
+
+	signal clk,iclk : std_logic;
+	signal clk0,clk2,clk2x : std_logic;
+
+begin
+	XE1		<='0';
+	E2A		<='1';
+	XE3		<='0';
+	XZBE	<="0000";
+	XGA		<='0';
+	XZCKE	<='0';
+	ADVA	<='0';
+	XFT		<='0';
+	XLBO	<='1';
+	ZZA		<='0';
+	ZCLKMA(0) <= clk2x;
+	ZCLKMA(1) <= clk2x;
+
+${next.body()}
+
+	cpunit : core_c port map(clk, clk2x, reset, nyet, cpu_in, 
+		cpu_wr, cpu_rd, cpu_out, ZA, XWA, ZD);
+	iounit : io_dev port map (clk, cpu_wr, cpu_rd, cpu_out, cpu_in, nyet, ${oc.rx_en()}, RS_TX);
+	--iounit : io_dev port map (clk, cpu_wr, cpu_rd, cpu_out, cpu_in, nyet, pipe, pipe);
+			-- like loopback.
+
+	count_down: process(clk, count)
+	begin
+		if rising_edge(clk) then
+			case count  is
+				when "0000"=>
+					count <= count;
+					reset <= '0';
+				when others =>
+					count <= count - 1;
+			end case;
+		end if;
+	end process;
+
+end board;
+<%namespace name="oc" file="macro.tmp"/>
+<%def name="unisim_lib()"></%def>
