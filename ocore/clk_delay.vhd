@@ -5,13 +5,12 @@ use ieee.std_logic_unsigned.all;
 --use ieee.std_logic_signed.all;
 
 entity clk_delay is
+
 	port (
 		CLK	:	in	std_logic;
 		DIN	:	in	std_logic;
 		QOUT	:	out	std_logic
 	);
-
-
 
 end clk_delay;
 

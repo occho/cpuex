@@ -4,25 +4,24 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 --use ieee.std_logic_signed.all;
 
+
 entity fetch is
+
 	port (
 		CLK : in std_logic;
 		CLK_FT : in std_logic;
 		PC : in std_logic_vector(31 downto 0);
 		PROM_OUT : out std_logic_vector(31 downto 0));
 
-
-
 end fetch;
 
 architecture RTL of fetch is
 	component prom is
-		port (
+
+	port (
 		clka : in std_logic;
 		addra : in std_logic_vector(13 downto 0);
 		douta : out std_logic_vector(31 downto 0));
-
-
 
 	end component;
 

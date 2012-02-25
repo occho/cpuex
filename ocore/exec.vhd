@@ -4,10 +4,12 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 --use ieee.std_logic_signed.all;
 
-
 use work.std_logic_1164_additional.all;
 
+
 entity exec is
+
+
 	port
 	(
 	CLK_EX	:	in	std_logic;	-- clk
@@ -39,39 +41,35 @@ entity exec is
 end exec;
 architecture RTL of exec is
 	component myfadd is
+
 port ( 
 	CLK_TABLE : in std_logic;
     I1, I2 : in  std_logic_vector(31 downto 0);
     O  : out std_logic_vector(31 downto 0));
-
-
 
 	end component;
 	component myfmul is
+
 port ( 
 	CLK_TABLE : in std_logic;
     I1, I2 : in  std_logic_vector(31 downto 0);
     O  : out std_logic_vector(31 downto 0));
 
-
-
 	end component;
 	component myfsqrt is
-port (
+
+port ( 
 	CLK_TABLE : in std_logic;
-    I  : in  std_logic_vector(31 downto 0);
+    I1, I2 : in  std_logic_vector(31 downto 0);
     O  : out std_logic_vector(31 downto 0));
-
-
 
 	end component;
 	component myfinv is
-port (
+
+port ( 
 	CLK_TABLE : in std_logic;
-    I  : in  std_logic_vector(31 downto 0);
+    I1, I2 : in  std_logic_vector(31 downto 0);
     O  : out std_logic_vector(31 downto 0));
-
-
 
 	end component;
 

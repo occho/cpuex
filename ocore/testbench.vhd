@@ -5,12 +5,15 @@ use ieee.std_logic_unsigned.all;
 --use ieee.std_logic_signed.all;
 
 
+
+
 ENTITY testbench IS
 END testbench;
 
 ARCHITECTURE behavior OF testbench IS 
   
 	COMPONENT top is
+
 	port (
 		MCLK1	: in  STD_LOGIC;
 		RS_RX	: in  STD_LOGIC;
@@ -34,17 +37,15 @@ ARCHITECTURE behavior OF testbench IS
 		ZZA		: out std_logic := '0' -- sleep mode off	
 );
 
-
 	END COMPONENT;
 	COMPONENT sram is
+
 	port (
 		ZA		: in std_logic_vector(19 downto 0);	-- Address
 		XWA		: in std_logic;	-- Write Enable
 		ZD		: inout std_logic_vector(31 downto 0);	-- Data InOut
 		ZCLKMA	: in std_logic_vector(1 downto 0)	-- clk
 	);
-
-
 
 	END COMPONENT;
 

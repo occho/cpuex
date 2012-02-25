@@ -4,7 +4,10 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 --use ieee.std_logic_signed.all;
 
+
 entity io_dev is
+
+
 	port(
 		CLK		:	in	std_logic;
 		CPU_WR	:	in	std_logic;
@@ -17,11 +20,11 @@ entity io_dev is
 	);
 
 
-
 end io_dev;
 
 architecture RTL of io_dev is
 	component u232c is
+
   generic (wtime: std_logic_vector(15 downto 0) := x"1ADB");
   Port ( clk  : in  std_logic;
 		 send_data : in  std_logic_vector (7 downto 0);
@@ -32,7 +35,6 @@ architecture RTL of io_dev is
 		 recv_ready : out std_logic;
 		 rx   : in std_logic
 		);
-
 
 	end component;
 

@@ -1,23 +1,57 @@
 ## -*- coding: utf-8 -*-
-
 <%inherit file="skeleton.tmp"/>
 use work.std_logic_1164_additional.all;
+
 <% debug_en = 0 %>
 entity exec is
-<%include file="exec_entity.tmp"/>
+
+<%block name="entity">
+	port
+	(
+	CLK_EX	:	in	std_logic;	-- clk
+	CLK_TABLE	:	in	std_logic;	-- clk
+	RESET	:	in	std_logic;	-- reset
+	IR		:   in	${oc.ir_t()};	-- instruction register
+	PC_IN	:	in	${oc.pc_t()};	-- current pc
+	REG_S	:	in	${oc.reg_t()};	-- value of rs
+	REG_T	:	in	${oc.reg_t()};	-- value of rt
+	REG_D	:	in	${oc.reg_t()};	-- value of rd
+	FREG_S	:	in	${oc.reg_t()} :=(others=>'0');	-- value of rs <== new
+	FREG_T	:	in	${oc.reg_t()} :=(others=>'0');	-- value of rt <== new
+	FREG_D	:	in	${oc.reg_t()} :=(others=>'0');	-- value of rd <== new
+	FP_OUT	:	in	${oc.ram_addr_t()};	-- current frame pinter
+	LR_OUT	:	in	${oc.pc_t()};	-- current link register
+	LR_IN	:	out	${oc.pc_t()};	-- next link register
+	PC_OUT	:	out	${oc.pc_t()};	-- next pc
+
+	N_REG	:	out ${oc.reg_index_t()};	-- register index
+	REG_IN	:	out	${oc.reg_t()};	-- value writing to reg
+	FR_FLAG :	out std_logic; -- <== new
+	RAM_ADDR	:	out	${oc.ram_addr_t()} := (others=>'0');	-- ram address
+	RAM_IN	:	out	${oc.reg_t()};	-- value writing to ram
+	REG_COND	:	out	std_logic_vector(3 downto 0);	-- reg flags
+	RAM_WEN	:	out	std_logic := '0'	-- ram write enable
+);
+</%block>
+
 end exec;
 architecture RTL of exec is
 	component myfadd is
-<%include file="fpu_entity.tmp"/>
+<%block name="fpu_entity">
+	port ( 
+		CLK_TABLE : in std_logic;
+		I1, I2 : in  std_logic_vector(31 downto 0);
+		O  : out std_logic_vector(31 downto 0));
+</%block>
 	end component;
 	component myfmul is
-<%include file="fpu_entity.tmp"/>
+${fpu_entity()}
 	end component;
 	component myfsqrt is
-<%include file="fpu_entity1.tmp"/>
+${fpu_entity()}
 	end component;
 	component myfinv is
-<%include file="fpu_entity1.tmp"/>
+${fpu_entity()}
 	end component;
 
 	signal op_code : std_logic_vector(5 downto 0);

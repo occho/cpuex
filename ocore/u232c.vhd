@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 
 entity u232c is
+
   generic (wtime: std_logic_vector(15 downto 0) := x"1ADB");
   Port ( clk  : in  std_logic;
 		 send_data : in  std_logic_vector (7 downto 0);
@@ -13,7 +14,6 @@ entity u232c is
 		 recv_ready : out std_logic;
 		 rx   : in std_logic
 		);
-
 
 end u232c;
 

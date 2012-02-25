@@ -1,32 +1,55 @@
 ## -*- coding: utf-8 -*-
 <%inherit file="skeleton.tmp"/>
+<%namespace name="clk_gen" file="clk_gen.tmp"/>
+<%namespace name="clk_delay" file="clk_delay.tmp"/>
+<%namespace name="fetch" file="fetch.tmp"/>
+<%namespace name="decode" file="decode.tmp"/>
+<%namespace name="reg_dc" file="reg_dc.tmp"/>
+<%namespace name="_exec" file="exec.tmp"/>
+<%namespace name="reg_wb" file="reg_wb.tmp"/>
+<%namespace name="mem_acc" file="mem_acc.tmp"/>
 entity core_c is
-<%include file="core_c_entity.tmp"/>
+<%block name="entity">
+	port
+	(			
+	CLK	:	in	std_logic;
+	CLK2X	:	in	std_logic;
+	RESET	:	in	std_logic;
+	NYET	:	in	${oc.io_flag_t()};
+	IO_IN	:	in	${oc.io_bus_t()};
+	IO_WR	:	out ${oc.io_flag_t()};
+	IO_RD	:	out ${oc.io_flag_t()};
+	IO_OUT	:	out	${oc.io_bus_t()};
+	SRAM_ZA	:	out std_logic_vector(19 downto 0);
+	SRAM_XWA:	out std_logic;
+	SRAM_ZD	:	inout std_logic_vector(31 downto 0)
+	);				
+</%block>
 end core_c;
 architecture RTL of core_c is
 component clk_gen is
-<%include file="clk_gen_entity.tmp"/>
+${clk_gen.entity()}
 end component;
 component clk_delay is
-<%include file="clk_delay_entity.tmp"/>
+${clk_delay.entity()}
 end component;
 component fetch is
-<%include file="fetch_entity.tmp"/>
+${fetch.entity()}
 end component;
 component decode is
-<%include file="decode_entity.tmp"/>
+${decode.entity()}
 end component;
 component reg_dc is
-<%include file="reg_dc_entity.tmp"/>
+${reg_dc.entity()}
 end component;
 component exec is
-<%include file="exec_entity.tmp"/>
+${_exec.entity()}
 end component;
 component reg_wb is
-<%include file="reg_wb_entity.tmp"/>
+${reg_wb.entity()}
 end component;
 component mem_acc is
-<%include file="mem_acc_entity.tmp"/>
+${mem_acc.entity()}
 end component;
 
 	signal	clk_ft	:	std_logic;

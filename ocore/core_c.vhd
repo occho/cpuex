@@ -4,7 +4,16 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 --use ieee.std_logic_signed.all;
 
+
+
+
+
+
+
+
+
 entity core_c is
+
 	port
 	(			
 	CLK	:	in	std_logic;
@@ -20,10 +29,10 @@ entity core_c is
 	SRAM_ZD	:	inout std_logic_vector(31 downto 0)
 	);				
 
-
 end core_c;
 architecture RTL of core_c is
 component clk_gen is
+
 	port (
 		CLK	:	in	std_logic;
 		INPUT_FLAG	: in std_logic;
@@ -35,30 +44,27 @@ component clk_gen is
 		CLK_WB	:	out	std_logic
 	);
 
-
-
 end component;
 component clk_delay is
+
 	port (
 		CLK	:	in	std_logic;
 		DIN	:	in	std_logic;
 		QOUT	:	out	std_logic
 	);
 
-
-
 end component;
 component fetch is
+
 	port (
 		CLK : in std_logic;
 		CLK_FT : in std_logic;
 		PC : in std_logic_vector(31 downto 0);
 		PROM_OUT : out std_logic_vector(31 downto 0));
 
-
-
 end component;
 component decode is
+
 port (
 	CLK_DC	:	in	std_logic;
 	PROM_OUT	:	in std_logic_vector(31 downto 0);
@@ -70,9 +76,9 @@ port (
 	LR	:	out std_logic_vector(31 downto 0)
 );
 
-
 end component;
 component reg_dc is
+
 
 	port (
 		CLK_DC	:	in	std_logic;
@@ -112,10 +118,9 @@ component reg_dc is
 		REG_OUT	:	out	std_logic_vector(31 downto 0) := (others=>'0')
 	);
 
-
-
 end component;
 component exec is
+
 	port
 	(
 	CLK_EX	:	in	std_logic;	-- clk
@@ -143,9 +148,9 @@ component exec is
 	RAM_WEN	:	out	std_logic := '0'	-- ram write enable
 );
 
-
 end component;
 component reg_wb is
+
 
 	port (
 		CLK_WB	:	in	std_logic;
@@ -223,9 +228,9 @@ component reg_wb is
 		LR_WB		:	out	std_logic_vector(31 downto 0)
 	);
 
-
 end component;
 component mem_acc is
+
 	port (
 		CLK_EX_DLY	: in	std_logic;
 		CLK_MA		: in	std_logic;
@@ -241,8 +246,6 @@ component mem_acc is
 		SRAM_XWA:	out std_logic := '1';
 		SRAM_ZD	:	inout std_logic_vector(31 downto 0)
 	);
-
-
 
 end component;
 

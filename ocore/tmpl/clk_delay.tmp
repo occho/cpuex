@@ -1,7 +1,13 @@
 ## -*- coding: utf-8 -*-
 <%inherit file="skeleton.tmp"/>
 entity clk_delay is
-<%include file="clk_delay_entity.tmp"/>
+<%block name="entity">
+	port (
+		CLK	:	in	std_logic;
+		DIN	:	in	std_logic;
+		QOUT	:	out	std_logic
+	);
+</%block>
 end clk_delay;
 
 architecture RTL of clk_delay is

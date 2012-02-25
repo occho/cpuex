@@ -1,10 +1,14 @@
 ## -*- coding: utf-8 -*-
 entity clk_dly is
+
+<%block name="entity">
 	port (
 		CLK	:	in	std_logic;
 		DIN	:	in	std_logic;
 		QOUT	:	out	std_logic
 	);
+</%block>
+
 end clk_dly;
 
 architecture RTL of clk_dly is

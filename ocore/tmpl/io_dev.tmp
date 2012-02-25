@@ -1,12 +1,26 @@
 ## -*- coding: utf-8 -*-
 <%inherit file="skeleton.tmp"/>
+<%namespace name="u232c" file="u232c.tmp"/>
 entity io_dev is
-<%include file="io_dev_entity.tmp"/>
+
+<%block name="entity">
+	port(
+		CLK		:	in	std_logic;
+		CPU_WR	:	in	std_logic;
+		CPU_RD	:	in	std_logic;
+		CPU_OUT	:	in	std_logic_vector(31 downto 0);
+		CPU_IN	:	out	std_logic_vector(31 downto 0);
+		NYET	:	out std_logic;
+		RS_RX	:	in	std_logic;
+		RS_TX	:	out	std_logic
+	);
+</%block>
+
 end io_dev;
 
 architecture RTL of io_dev is
 	component u232c is
-<%include file="u232c_entity.tmp"/>
+${u232c.entity()}
 	end component;
 
 	subtype buf_rec_t is std_logic_vector(7 downto 0);

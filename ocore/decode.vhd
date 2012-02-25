@@ -6,6 +6,7 @@ use ieee.std_logic_unsigned.all;
 
 
 entity decode is
+
 port (
 	CLK_DC	:	in	std_logic;
 	PROM_OUT	:	in std_logic_vector(31 downto 0);
@@ -16,7 +17,6 @@ port (
 	FP	:	out std_logic_vector(19 downto 0);
 	LR	:	out std_logic_vector(31 downto 0)
 );
-
 
 end decode;
 

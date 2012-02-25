@@ -1,12 +1,19 @@
 ## -*- coding: utf-8 -*-
 <%inherit file="skeleton.tmp"/>
+<%namespace name="prom" file="prom.tmp"/>
 entity fetch is
-<%include file="fetch_entity.tmp"/>
+<%block name="entity">
+	port (
+		CLK : in std_logic;
+		CLK_FT : in std_logic;
+		PC : in ${oc.pc_t()};
+		PROM_OUT : out ${oc.ir_t()});
+</%block>
 end fetch;
 
 architecture RTL of fetch is
 	component prom is
-	<%include file="prom_entity.tmp"/>
+${prom.entity()}
 	end component;
 
 	signal	raw_prom_out	:	${oc.ir_t()};

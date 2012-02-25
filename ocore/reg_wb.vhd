@@ -6,6 +6,8 @@ use ieee.std_logic_unsigned.all;
 
 entity reg_wb is
 
+
+
 	port (
 		CLK_WB	:	in	std_logic;
 		RESET	:	in	std_logic;
@@ -81,6 +83,7 @@ entity reg_wb is
 		FREG_31WB	:	out	std_logic_vector(31 downto 0);
 		LR_WB		:	out	std_logic_vector(31 downto 0)
 	);
+
 
 
 end reg_wb;

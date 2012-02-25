@@ -6,6 +6,7 @@ use ieee.std_logic_unsigned.all;
 
 
 entity clk_gen is
+
 	port (
 		CLK	:	in	std_logic;
 		INPUT_FLAG	: in std_logic;
@@ -16,8 +17,6 @@ entity clk_gen is
 		CLK_MA	:	out	std_logic;
 		CLK_WB	:	out	std_logic
 	);
-
-
 
 end clk_gen;
 

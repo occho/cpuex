@@ -4,7 +4,18 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 
 entity u232c is
-<%include file="u232c_entity.tmp"/>
+<%block name="entity">
+  generic (wtime: std_logic_vector(15 downto 0) := x"1ADB");
+  Port ( clk  : in  std_logic;
+		 send_data : in  std_logic_vector (7 downto 0);
+		 send_go   : in  std_logic;
+		 send_busy : out std_logic;
+		 tx   : out std_logic;
+		 recv_data : out std_logic_vector (7 downto 0);
+		 recv_ready : out std_logic;
+		 rx   : in std_logic
+		);
+</%block>
 end u232c;
 
 architecture blackbox of u232c is

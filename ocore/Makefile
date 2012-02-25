@@ -8,13 +8,13 @@ OBJS = top.o clk_gen.o core_c.o decode.o reg_dc.o \
 	$(FPU_SIM:%=%.o)
 ISE_VHDL = $(FPU) std_logic_1164_additional 
 VSIM_VHDL = $(FPU_SIM) std_logic_1164_additional 
+
 ISE_SPACE = ../ise_space
 VSIM_SPACE = ../vsim_space
-		
 TMPL_DIR = ./tmpl
 
-TIME = 100us
 
+TIME = 100us
 .SUFFIXES: .vhd .vcd .tmp
 .PHONY: default wave vcd reload
 

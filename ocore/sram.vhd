@@ -6,13 +6,14 @@ use ieee.std_logic_unsigned.all;
 
 
 entity sram is
+
+
 	port (
 		ZA		: in std_logic_vector(19 downto 0);	-- Address
 		XWA		: in std_logic;	-- Write Enable
 		ZD		: inout std_logic_vector(31 downto 0);	-- Data InOut
 		ZCLKMA	: in std_logic_vector(1 downto 0)	-- clk
 	);
-
 
 
 end sram;

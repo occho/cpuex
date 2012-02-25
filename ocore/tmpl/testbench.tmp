@@ -1,5 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%inherit file="skeleton.tmp"/>
+<%namespace name="_top" file="skeleton_top.tmp"/>
+<%namespace name="sram" file="sram.tmp"/>
 
 ENTITY testbench IS
 END testbench;
@@ -7,10 +9,10 @@ END testbench;
 ARCHITECTURE behavior OF testbench IS 
   
 	COMPONENT top is
-<%include file="top_entity.tmp"/>
+${_top.entity()}
 	END COMPONENT;
 	COMPONENT sram is
-<%include file="sram_entity.tmp"/>
+${sram.entity()}
 	END COMPONENT;
 
 	signal MCLK1 : std_logic := '0';

@@ -2,7 +2,18 @@
 <%inherit file="skeleton.tmp"/>
 
 entity decode is
-<%include file="decode_entity.tmp"/>
+<%block name="entity">
+port (
+	CLK_DC	:	in	std_logic;
+	PROM_OUT	:	in ${oc.ir_t()};
+	FP_OUT	:	in ${oc.reg_t()};
+	LINK_OUT	:	in ${oc.pc_t()};
+	INPUT_FLAG	:	out ${oc.io_flag_t()};
+	IR	: out ${oc.ir_t()};
+	FP	:	out ${oc.ram_addr_t()};
+	LR	:	out ${oc.pc_t()}
+);
+</%block>
 end decode;
 
 architecture RTL of decode is

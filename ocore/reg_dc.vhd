@@ -7,6 +7,7 @@ use ieee.std_logic_unsigned.all;
 
 entity reg_dc is
 
+
 	port (
 		CLK_DC	:	in	std_logic;
 		REG_00	:	in	std_logic_vector(31 downto 0);
@@ -44,8 +45,6 @@ entity reg_dc is
 		N_REG_IN	:	in	std_logic_vector (4 downto 0);
 		REG_OUT	:	out	std_logic_vector(31 downto 0) := (others=>'0')
 	);
-
-
 
 end reg_dc;
 architecture RTL of reg_dc is
