@@ -76,21 +76,14 @@ int simulate(char *sfile) {
 	}
 
 #ifdef LST_FLAG
-	#undef DEBUG_FLAG
 	sprintf(lst_name, "%s.lst", sfile);
 	fprintf(stderr, "output %s\n", lst_name);
 	lst_fp = fopen(lst_name, "w");
 	fprintf(lst_fp, "#### %s\n\n", lst_name);
 #endif
 
-#ifdef DEBUG_FLAG
-	fprintf(stderr, "debugging %s\n", sfile);
-	debug_usage();
-	fprintf(stderr, "\n[Debug start]\n");
-#else
 	fprintf(stderr, "simulate %s\n", sfile);
 	fflush(stderr);
-#endif
 
 #ifdef STATS_FLAG
 	statistics(NULL,1);
@@ -119,9 +112,6 @@ int simulate(char *sfile) {
 		statistics(stderr,0);
 #endif
 
-#ifdef DEBUG_FLAG
-		debug();
-#endif
 
 		opcode = get_opcode(ir);
 		funct = get_funct(ir);
@@ -150,14 +140,8 @@ int simulate(char *sfile) {
 				break;
 			case JNE:
 				if (_GRS != _GRT) {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
 					pc += _IMM - 1;
 				} else {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
 				}
 				break;
 			case ADDI:
@@ -175,58 +159,21 @@ int simulate(char *sfile) {
 				a.i = _FRS;
 				b.i = _FRT;
 				if (((SIGN(a.i))==1) && ((SIGN(b.i))==0)) {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
-					fjlt_flag = 1;
 					pc += _IMM - 1;
 				} else if (SIGN(a.i)==0 && SIGN(b.i)==1) {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
-					fjlt_flag = 0;
 					pc = pc;
 				} else if (SIGN(a.i)==0 && SIGN(b.i)==0) {
 					if (ELSE(a.i) < ELSE(b.i)) {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
-						fjlt_flag = 1;
 						pc += _IMM - 1;
 					} else {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
-						fjlt_flag = 0;
 							pc = pc;
 					}
 				} else {
 					if (ELSE(a.i) > ELSE(b.i)) {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
-						fjlt_flag = 1;
 						pc += _IMM - 1;
 					} else {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
-					fjlt_flag = 0;
 							pc = pc;
 					}
-				}
-				if (a.f < b.f) {
-					//pc += _IMM - 1;
-					fjlt_ans = 1;
-				} else {
-					fjlt_ans = 0;
-				}
-				if (fjlt_flag != fjlt_ans) {
-					fprintf(stderr, "ans: %d, flag %d\n", fjlt_ans, fjlt_flag);
-					fprintf(stderr, "a: %f, b: %f\n", a.f, b.f);
-					fprintf(stderr, "sa: %d, sb: %d\n", SIGN(a.i), SIGN(b.i));
-					dump(a.i);
-					dump(b.i);
 				}
 				break;
 			case FSTI:
@@ -245,26 +192,14 @@ int simulate(char *sfile) {
 				a.i = _FRS;
 				b.i = _FRT;
 				if (a.f == b.f)  {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
 					pc += _IMM - 1;
 				} else {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
 				}
 				break;
 			case JLT:
 				if (_GRS < _GRT) {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
 					pc += _IMM - 1;
 				} else {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
 				}
 				break;
 			case CALL:
@@ -279,14 +214,8 @@ int simulate(char *sfile) {
 				break;
 			case JEQ:
 				if (_GRS == _GRT) {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
 					pc += _IMM - 1;
 				} else {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
 				}
 				break;
 			case MULI:
