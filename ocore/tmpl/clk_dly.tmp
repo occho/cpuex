@@ -1,0 +1,25 @@
+## -*- coding: utf-8 -*-
+entity clk_dly is
+
+<%block name="entity">
+	port (
+		CLK	:	in	std_logic;
+		DIN	:	in	std_logic;
+		QOUT	:	out	std_logic
+	);
+</%block>
+
+end clk_dly;
+
+architecture RTL of clk_dly is
+
+begin
+	process(CLK)
+	begin	
+		if falling_edge(CLK) then
+		   QOUT <= DIN;
+		end if;
+	end process;
+end RTL;
+<%namespace name="oc" file="macro.tmp"/>
+
