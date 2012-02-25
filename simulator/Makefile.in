@@ -8,8 +8,8 @@ CXXFLAGS = -Wall -O3 -funroll-loops
 LDFLAGS = -Wall -O3 -lm
 
 CACHE = ../cache
-PPM_DIR = $(CACHE)/ppm/p6
-PPM_ANS_DIR = $(CACHE)/ppm_ans/p6
+PPM_DIR = $(CACHE)/ppm_p6
+PPM_ANS_DIR = $(CACHE)/ppm_p6_ans
 SLDBIN_DIR = $(CACHE)/sldbin
 SLD_DIR = $(CACHE)/sld
 
@@ -23,14 +23,14 @@ MIN_RT = $(COMPILER_DIR)/test/min-rt/min-rt
 #TEST_TARGET = $(subst $(COMPILER_DIR)/test/,, $(subst .s,, $(shell ls $(HOME_DIR)/../compiler/test/*.s)))
 TEST_TARGET = float
 #RT_TARGET = $(basename $(shell ls $(HOME_DIR)/pict/sld))
-RT_TARGET = base
+RT_TARGET = contest
 #DEBUG_MACRO = -D DEBUG_FLAG
-DEBUG_MACRO = -D LST_FLAG
-#DEBUG_MACRO += -D STATS_FLAG
+#DEBUG_MACRO = -D LST_FLAG
+##DEBUG_MACRO += -D STATS_FLAG
 #DEBUG_MACRO += -D CHECK_BRANCH
 #ASM_FLAGS = -b
 #XSIM_FLAGS = -cnt
-##EOG =   (eog $$ppm &);
+EOG =   (eog $$ppm &);
 ###################################
 ###################################
 

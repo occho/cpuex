@@ -1,6 +1,6 @@
 # asm/Makefile
-ASM = ./ocore_asmcho
-TARGET = asmcho ocore_asmcho
+ASM = ./oc_asmcho
+TARGET = oc_asmcho
 ASMH = common.h asm.h
 HOME_DIR = ..
 include ../Makefile.in
@@ -18,10 +18,10 @@ assemble.o: $(ASMH) encode_op.o mnemonic.o
 encode_op.o: $(ASMH)
 mnemonic.o: $(ASMH)
 
-ocore_asmcho: ocore_asmcho.o ocore_assemble.o encode_op.o ocore_mnemonic.o
-ocore_asmcho.o : $(ASMH) ocore_assemble.o
-ocore_assemble.o: $(ASMH) encode_op.o ocore_mnemonic.o
-ocore_mnemonic.o: $(ASMH)
+oc_asmcho: oc_asmcho.o oc_assemble.o encode_op.o oc_mnemonic.o
+oc_asmcho.o : $(ASMH) oc_assemble.o
+oc_assemble.o: $(ASMH) encode_op.o oc_mnemonic.o
+oc_mnemonic.o: $(ASMH)
 
 asm:
 	$(ASM) $(ASM_FLAGS) $(ASM_TARGET)

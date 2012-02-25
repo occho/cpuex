@@ -1,5 +1,6 @@
 
 *.o
+*.ln
 bit/
 pdf/
 util/
@@ -8,3 +9,4 @@ cache/
 compiler/
 ise_space/
 vsim_space/
+shinshu/

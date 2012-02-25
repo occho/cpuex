@@ -11,7 +11,7 @@
 int output_type = 0;
 int assemble(char*);
 
-int main(int argc, char **argv, char **envp) {
+int main(int argc, char **argv) {
 	int i;
 	if (argc < 2) {
 		puts("USAGE:./asmcho [filename] [options]:\n");

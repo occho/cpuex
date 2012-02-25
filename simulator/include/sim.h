@@ -9,7 +9,7 @@ extern uint32_t freg[REG_NUM];
 extern uint32_t rom[ROM_NUM];
 extern uint32_t ram[RAM_NUM];
 extern uint32_t pc;
-extern uint32_t lr, tmplr;
+extern int32_t lr, tmplr;
 extern long long unsigned cnt;
 #define PRT_ELE_GET(name) \
 	uint32_t name(uint32_t);

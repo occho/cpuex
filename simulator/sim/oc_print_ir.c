@@ -25,7 +25,8 @@ void print_ir(uint32_t ir, FILE *fp) {
 		float f;
 	} a, b, c;
 	
-	fprintf(fp, "%4llx.[%4x] g1:%d lr:%d ram:%d ", cnt, pc, reg[1]/4, lr, ram[261539]);
+	fprintf(fp, "ram:%d %4llx.[%4x] sp:%d lr:%d ram:%d ", 
+				ram[1046796/4], cnt, pc, reg[1]/4, lr, ram[261539]);
 
 	opcode = get_opcode(ir);
 	funct = get_funct(ir);

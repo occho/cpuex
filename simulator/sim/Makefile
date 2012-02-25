@@ -26,7 +26,7 @@ imap.o: $(SIMH)
 
 oc_simcho: oc_simcho.o oc_simulate.o oc_print_ir.o oc_statistics.o imap.o  $(FPU) to_bin.o
 oc_simcho.o: $(SIMH) oc_simulate.o imap.o oc_print_ir.o debug.o
-oc_simulate.o: $(SIMH) print_state.o oc_statistics.o $(FPU) ../Makefile.in
+oc_simulate.o: $(SIMH) oc_statistics.o $(FPU) ../Makefile.in
 oc_statistics.o: $(SIMH) imap.o
 oc_print_ir.o: $(SIMH) imap.o
 
