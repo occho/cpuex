@@ -1,0 +1,10 @@
+
+*.o
+bit/
+pdf/
+util/
+mycom/
+cache/
+compiler/
+ise_space/
+vsim_space/
