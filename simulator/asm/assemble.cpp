@@ -227,6 +227,7 @@ int	assemble(char *sfile) {
 		}
 		ofs.close();
 
+		printf("%s\n", dfile);
 
 		return 0;
 	}
