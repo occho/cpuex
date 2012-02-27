@@ -42,9 +42,9 @@ static uint32_t *output_alias;
 	} while(0) 
 
 
-int assemble(char *asm_buf, uint32_t *out_buf) {
-	char asm_line[LINE_MAX];
-	char term0[LINE_MAX];
+int assemble(uint32_t *out_buf, char *asm_buf) {
+	char asm_line[COL_MAX];
+	char term0[COL_MAX];
 	output_alias = out_buf;
 
 	while (mygets(asm_line, asm_buf, COL_MAX) != NULL) {
@@ -184,4 +184,45 @@ static inline int is_label(char*line, char *term0) {
 }
 static inline int is_comment(char*line, char *term0) {
 	return term0[0] == '!';
+}
+
+
+static int list_input_cnt=0;
+void asm_listing(int fd, uint32_t* binary_data, char*ex_mne_buf) {
+	char list_line[COL_MAX];
+	char asm_line[COL_MAX];
+	char term0[COL_MAX];
+	list_line[72] = '\n';
+	_mywrite(fd, memset(list_line, '#', 72), 73);
+	_mywrite(fd, "# PC     :  IR      || assembly\n", 32);
+	_mywrite(fd, memset(list_line, '#', 72), 73);
+	while (mygets(asm_line, ex_mne_buf, COL_MAX) != NULL) {
+		if (set_term0(asm_line, term0) == 1) {
+			if (is_comment(asm_line, term0)) {
+			} else if (is_directive(asm_line, term0)) {
+				set_hex(list_line, list_input_cnt);
+				memcpy(list_line+8," : ", 3);
+				set_hex(list_line+11, binary_data[list_input_cnt]);
+				memcpy(list_line+19," || ", 4);
+				strcpy(list_line+23, strchr(asm_line, '.'));
+				list_input_cnt++;
+				_mywrite(fd, list_line, strlen(list_line));
+			} else if (is_label(asm_line, term0)) {
+				memset(list_line, ' ', 19);
+				memcpy(list_line+19," || ", 4);
+				strcpy(list_line+23, asm_line);
+				_mywrite(fd, list_line, strlen(list_line));
+			} else { 
+				set_hex(list_line, list_input_cnt);
+				memcpy(list_line+8," : ", 3);
+				set_hex(list_line+11, binary_data[list_input_cnt]);
+				memcpy(list_line+19," || ", 4);
+				strcpy(list_line+23, asm_line+1);
+				list_input_cnt++;
+				_mywrite(fd, list_line, strlen(list_line));
+			}
+		} else {
+		}
+	}
+
 }

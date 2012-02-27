@@ -45,14 +45,27 @@ void set_bin(char *buf, uint32_t num) {
 }
 #undef N
 #define N 8
-void set_hex(char *buf, uint32_t num) {
+int set_hex(char *buf, uint32_t num) {
 	int i, dig;
+	int ret_dig = 1;
 	const char *alpha = "0123456789abcdef";
 
 	for (i = 0; i < N; i++) {
 		dig = eff_dig(4, num);
 		buf[N-i-1] = alpha[dig];
 		num>>=4;
+		if (alpha[dig]!='0') {
+			ret_dig = i+1;
+		}
 	}
+	return ret_dig;
 }
 #undef N
+
+void _mywrite(int fd, char *buf, int num) {
+	int nwrite;
+	while ((nwrite = write(fd, buf, num))>0) {
+		num -= nwrite;
+	}
+}
+

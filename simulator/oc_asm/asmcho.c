@@ -6,16 +6,19 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "oc_asm.h"
-enum out_fmt_t { OFMT_BIN, OFMT_STR_BIN, OFMT_STR_HEX, OFMT_COE, 
-				 OFMT_EX_MNE };
+enum out_fmt_t { OFMT_BIN, OFMT_STR_BIN, OFMT_STR_HEX, OFMT_COE, OFMT_EX_MNE };
 static enum out_fmt_t output_type = OFMT_BIN;
+enum dst_t { DST_FILE, DST_STDOUT, DST_STDERR, };
+static enum dst_t dst_flag = DST_FILE;
+
+FILE *err_fp;
 
 static char *dfile = (char*) "ika.out";
 static char *lst_file = (char*) "ika.lst";
 static char *sfile;
-static FILE *lst_fp;
-static int sfd, dfd;
-static int lst_flag, dst_flag, mne_flag, be_quiet;
+
+static int sfd, dfd, lfd;
+static int lst_flag, be_quiet;
 static int output_line_min;
 static uint32_t binary_data[LINE_MAX];
 static char ex_mne_buf[LINE_MAX*COL_MAX];
@@ -29,10 +32,11 @@ static void conf_out_fmt(int argc, char** argv);
 static void open_files(void);
 static void close_files(void);
 static void output_file(char*buf, int size);
-static void mywrite(char *buf, int num);
-int assemble(char *buf, uint32_t* binary_data);
-int expand_mnemonic(char *asm_buf, char *ex_mne_buf);
+int expand_mnemonic(char *ex_mne_buf, char *asm_buf);
+int assemble(uint32_t* binary_data, char*buf);
+void asm_listing(int fd, uint32_t* binary_data, char*ex_mne_buf);
 
+#define mywrite(buf, num) _mywrite(dfd, buf, num)
 int main(int argc, char **argv) {
 	int size;
 	configure(argc, argv);
@@ -40,26 +44,23 @@ int main(int argc, char **argv) {
 	print_conf();
 	size = read(sfd, asm_buf, LINE_MAX*COL_MAX);
 	if (size<0) { exit(1); }
-	size = expand_mnemonic(asm_buf, ex_mne_buf);
+	size = expand_mnemonic(ex_mne_buf, asm_buf);
 	if (size<0) { exit(1); }
 	if (output_type == OFMT_EX_MNE) {
 		mywrite(ex_mne_buf, size);
 	} else {
-		size = assemble(ex_mne_buf, binary_data);
+		size = assemble(binary_data, ex_mne_buf);
 		if (size<0) { exit(1); }
 		output_file((char*)binary_data, size*4);
+	}
+	if (lst_flag>0) {
+		asm_listing(lfd, binary_data, ex_mne_buf); // reuse asm_buf
 	}
 	exit(0);
 }
 
-static void mywrite(char *buf, int num) {
-	int nwrite;
-	while ((nwrite = write(dfd, buf, num))>0) {
-		num -= nwrite;
-	}
-	
-}
 static void configure(int argc, char** argv) {
+	err_fp = stderr;
 	conf_sfile(argc, argv);
 	conf_out_fmt(argc, argv);
 }
@@ -129,11 +130,11 @@ static void output_file(char*buf, int size) {
 }
 static void close_files(void) {
 	close(sfd); 
-	if (dst_flag == 0) {
+	if (dst_flag == DST_FILE) {
 		close(dfd);
 	}
 	if (lst_flag > 0) {
-		fclose(lst_fp);
+		close(lfd);
 	}
 }
 static void open_files(void) {
@@ -144,25 +145,37 @@ static void open_files(void) {
 		perror("open");
 		exit(1);
 	}
-
-	if (dst_flag == 1) {
-		dfd = 1;
-	} else if (dst_flag == 2) {
-		dfd = 2;
-	} else {
-		dfd = open(dfile, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
-		if (dfd < 0) {
-			warning("dfile @ open_files: %s\n", dfile);
+	switch (dst_flag) {
+		case DST_STDOUT :
+			dfd = 1;
+			break;
+		case DST_STDERR :
+			dfd = 2;
+			break;
+		case DST_FILE :
+		default :
+			dfd = open(dfile, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
+			if (dfd < 0) {
+				warning("dfile @ open_files: %s\n", dfile);
+				perror("open");
+				exit(1);
+			}
+			break;
+	}
+	if (lst_flag > 0) {
+		lfd = open(lst_file, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
+		if (lfd < 0) {
+			warning("lst_file @ open_files: %s\n", lst_file);
 			perror("open");
 			exit(1);
 		}
+
 	}
-
-
-	if (lst_flag > 0) {
-		lst_fp = fopen(lst_file, "w");
-		if (lst_fp == NULL) {
-			warning("lst_file @ open_files: %s\n", lst_file);
+	if (be_quiet>0) {
+		// now : err_fp = stderr 
+		err_fp = fopen("/dev/null", "w");
+		if (err_fp == NULL) {
+			warning("err_fp @ open_files: /dev/null\n");
 			perror("fopen");
 			exit(1);
 		};
@@ -179,8 +192,9 @@ static void print_usage(char*name) {
 	print_option("-o $dst_file\t: place output in file $dst_file");
 	print_option("-l [$lst_file]\t: place list output in file $lst_file");
 	print_option("-b $line_num\t: output binary string");
-	print_option("-h $line_num\t: output hexadecimal string");
+	print_option("-x $line_num\t: output hexadecimal string");
 	print_option("-c $line_num\t: output coe format string");
+	print_option("-h\t: print this usage information");
 	print_option("-m\t: output code after expanding mnemonic");
 	print_option("-q\t: don't print configure information");
 	warning("\n");
@@ -189,15 +203,15 @@ static void print_usage(char*name) {
 
 static void conf_out_fmt(int argc, char** argv) {
 	int opt;
-	while ((opt = getopt(argc, argv, "lmqo:b:h:c:")) != -1) {
+	while ((opt = getopt(argc, argv, "lmqcbhxo:")) != -1) {
 		switch (opt) {
 			case 'o' :
 				if (atoi(optarg) == 1) {
-					dst_flag = 1;
+					dst_flag = DST_STDOUT;
 				} else if (atoi(optarg) == 2) {
-					dst_flag = 2;
+					dst_flag = DST_STDERR;
 				} else {
-					dst_flag = 0;
+					dst_flag = DST_FILE;
 					dfile = optarg;
 				}
 				break;
@@ -213,22 +227,27 @@ static void conf_out_fmt(int argc, char** argv) {
 				break;
 			case 'm' :
 				output_type = OFMT_EX_MNE;
-				mne_flag = 1;
 				break;
 			case 'b' :
 				output_type = OFMT_STR_BIN;
-				output_line_min = atoi(optarg);
+				if ((argc != optind) && (argv[optind][0] != '-')) {
+					output_line_min = atoi(argv[optind]);
+					optind++;
+				}
 				break;
-			case 'h' :
+			case 'x' :
 				output_type = OFMT_STR_HEX;
-				output_line_min = atoi(optarg);
+				if ((argc != optind) && (argv[optind][0] != '-')) {
+					output_line_min = atoi(argv[optind]);
+					optind++;
+				}
 				break;
 			case 'c' :
 				output_type = OFMT_COE;
-				output_line_min = atoi(optarg);
 				break;
 			case ':' :
 			case '?' :
+			case 'h' :
 			default :
 				print_usage(argv[0]);
 				exit(1);
@@ -240,19 +259,17 @@ static void conf_out_fmt(int argc, char** argv) {
 #define print_val(fmt, ...) \
 	warning("* "fmt"\n", ##__VA_ARGS__)
 static void print_conf(void) {
-	if (be_quiet == 1) {
-		return;
-	}
 	warning("\n");
 	warning("######################## ASMCHO CONFIGURATION ########################\n\n");
 	print_val("source\t: %s", sfile);
 	switch (dst_flag) {
-		case 1:
+		case DST_STDOUT :
 			print_val("destination\t: stdout");
 			break;
-		case 2:
+		case DST_STDERR :
 			print_val("destination\t: stderr");
 			break;
+		case DST_FILE :
 		default:
 			print_val("destination\t: %s", dfile);
 			break;
@@ -284,6 +301,6 @@ static void print_conf(void) {
 			break;
 	}
 	print_val("output_line_min\t: %d", output_line_min);
-	warning("\n");
+	warning("\n######################################################################\n\n");
 }
 #undef print_val

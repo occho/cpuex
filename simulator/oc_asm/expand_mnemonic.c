@@ -19,7 +19,7 @@ static inline int _inst_is(char *inst, const char *str) {
 #define myscan(fmt, ...) \
 	(sscanf(asm_line, asm_fmt_##fmt, tmpbuf, ##__VA_ARGS__) - 1)
 
-int expand_mnemonic(char *asm_buf, char *ex_mne_buf) {
+int expand_mnemonic(char *ex_mne_buf, char *asm_buf) {
 	int rd,rs;
 	char* dst_ptr = ex_mne_buf;
 
