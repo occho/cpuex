@@ -3,8 +3,7 @@
 #define _COMMON_HEAD
 #define INST_NUM 64	// 6bit 63
 #define REG_NUM 32
-//#define ROM_NUM (4 * 1024 * 1024)
-#define ROM_NUM (64 * 1024) // 2^16 Words (2^18 Bytes = 2^8 KB)
+#define ROM_NUM (64 * 1024) // words(32bit)
 #define RAM_NUM (256 * 1024)
 
 ///////////////////////////////////////

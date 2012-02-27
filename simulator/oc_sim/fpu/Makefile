@@ -1,5 +1,7 @@
-TARGET = finv.o fsqrt.o finv.s fsqrt.s fadd.o fmul.o
+TARGET = finv.o fsqrt.o fadd.o fmul.o
 include ../Makefile.in
+CC = gcc
+
 all: $(TARGET)
 CFLAGS += -I ../include/
 CXXFLAGS += -I ../include/

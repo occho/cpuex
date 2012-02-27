@@ -62,9 +62,9 @@ int statistics(FILE*, int);
 int operate(uint32_t);
 int op_stat(char);
 
-uint32_t _finv(uint32_t);
-uint32_t _fsqrt(uint32_t);
-uint32_t _fadd(uint32_t, uint32_t);
-uint32_t _fmul(uint32_t, uint32_t);
+extern uint32_t _finv(uint32_t);
+extern uint32_t _fsqrt(uint32_t);
+extern uint32_t _fadd(uint32_t, uint32_t);
+extern uint32_t _fmul(uint32_t, uint32_t);
 
 #endif

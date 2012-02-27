@@ -5,7 +5,7 @@ CFLAGS = -Wall -O3 -funroll-loops
 CXXFLAGS = -Wall -O3 -funroll-loops
 LDFLAGS = -Wall -O3
 
-CACHE = ../cache
+CACHE = ./cache
 PPM_DIR = $(CACHE)/ppm_p6
 PPM_ANS_DIR = $(CACHE)/ppm_p6_ans
 SLDBIN_DIR = $(CACHE)/sldbin

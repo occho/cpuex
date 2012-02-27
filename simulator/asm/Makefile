@@ -1,6 +1,6 @@
 # asm/Makefile
 ASM = ./ocore_asmcho
-TARGET = ocore_asmcho
+TARGET = asmcho ocore_asmcho
 ASMH = common.h asm.h
 HOME_DIR = ..
 include ../Makefile.in

@@ -8,12 +8,12 @@
 #include <stdint.h>
 #include <assert.h>
 #include <math.h>
-#include "sim.h"
+#include "oc_sim.h"
 
-int32_t reg[REG_NUM];
-uint32_t freg[REG_NUM];
 uint32_t rom[ROM_NUM];
 uint32_t ram[RAM_NUM];
+int32_t reg[REG_NUM];
+uint32_t freg[REG_NUM];
 uint32_t pc;
 int32_t lr, tmplr;
 long long unsigned cnt;
@@ -36,6 +36,9 @@ int32_t get_imm(uint32_t ir) {
 		   (ir & 0xffff);
 }
 
+uint32_t stack[128];
+uint32_t stack_ptr;
+
 int simulate(char *sfile) {
 	uint32_t ir, heap_size;
 	int fd,ret,i;
@@ -45,14 +48,13 @@ int simulate(char *sfile) {
 		float f;
 	} a, b, out, ans;
 	uint32_t sendbuf_count = 0;
-	uint32_t max_sendbuf_count = 0;
+	uint32_t tmp, max_sendbuf_count = 0;
 	int fjlt_flag, fjlt_ans;
 	char c;
 #ifdef LST_FLAG
 	FILE *lst_fp;
 	char lst_name[1024];
 #endif
-	//uint32_t g1_min = 4*RAM_NUM, g2_max = 0;
 
 	fd = open(sfile, O_RDONLY);
 	if (fd < 0) {
@@ -76,41 +78,23 @@ int simulate(char *sfile) {
 	}
 
 #ifdef LST_FLAG
-	#undef DEBUG_FLAG
 	sprintf(lst_name, "%s.lst", sfile);
 	fprintf(stderr, "output %s\n", lst_name);
 	lst_fp = fopen(lst_name, "w");
 	fprintf(lst_fp, "#### %s\n\n", lst_name);
 #endif
 
-#ifdef DEBUG_FLAG
-	fprintf(stderr, "debugging %s\n", sfile);
-	debug_usage();
-	fprintf(stderr, "\n[Debug start]\n");
-#else
 	fprintf(stderr, "simulate %s\n", sfile);
 	fflush(stderr);
-#endif
 
 #ifdef STATS_FLAG
 	statistics(NULL,1);
 #endif
 	do{
 		
-		if (reg[1] < 0 || reg[2] < 0)  {
-			break;
-		}
-
-		//if (!(cnt % 13750)) {
-		if (!(cnt % 1611)) {
-		//if (!(cnt % 20625)) {
-			if (sendbuf_count >0) {
-				sendbuf_count--;
-			}
-		}
-
 		ir = rom[pc];
 		cnt++;
+
 #ifdef LST_FLAG
 		print_ir(ir, lst_fp);
 #endif
@@ -119,9 +103,8 @@ int simulate(char *sfile) {
 		statistics(stderr,0);
 #endif
 
-#ifdef DEBUG_FLAG
-		debug();
-#endif
+		
+
 
 		opcode = get_opcode(ir);
 		funct = get_funct(ir);
@@ -130,6 +113,11 @@ int simulate(char *sfile) {
 			fprintf(stderr, ".");
 			fflush(stderr);
 		}
+		/*
+		if (cnt >= 0x52d40) {
+			break;
+		}
+		*/
    
 		switch(opcode){
 			case LD:
@@ -150,14 +138,8 @@ int simulate(char *sfile) {
 				break;
 			case JNE:
 				if (_GRS != _GRT) {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
 					pc += _IMM - 1;
 				} else {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
 				}
 				break;
 			case ADDI:
@@ -175,58 +157,21 @@ int simulate(char *sfile) {
 				a.i = _FRS;
 				b.i = _FRT;
 				if (((SIGN(a.i))==1) && ((SIGN(b.i))==0)) {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
-					fjlt_flag = 1;
 					pc += _IMM - 1;
 				} else if (SIGN(a.i)==0 && SIGN(b.i)==1) {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
-					fjlt_flag = 0;
 					pc = pc;
 				} else if (SIGN(a.i)==0 && SIGN(b.i)==0) {
 					if (ELSE(a.i) < ELSE(b.i)) {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
-						fjlt_flag = 1;
 						pc += _IMM - 1;
 					} else {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
-						fjlt_flag = 0;
 							pc = pc;
 					}
 				} else {
 					if (ELSE(a.i) > ELSE(b.i)) {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
-						fjlt_flag = 1;
 						pc += _IMM - 1;
 					} else {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
-					fjlt_flag = 0;
 							pc = pc;
 					}
-				}
-				if (a.f < b.f) {
-					//pc += _IMM - 1;
-					fjlt_ans = 1;
-				} else {
-					fjlt_ans = 0;
-				}
-				if (fjlt_flag != fjlt_ans) {
-					fprintf(stderr, "ans: %d, flag %d\n", fjlt_ans, fjlt_flag);
-					fprintf(stderr, "a: %f, b: %f\n", a.f, b.f);
-					fprintf(stderr, "sa: %d, sb: %d\n", SIGN(a.i), SIGN(b.i));
-					dump(a.i);
-					dump(b.i);
 				}
 				break;
 			case FSTI:
@@ -236,42 +181,52 @@ int simulate(char *sfile) {
 				IF0_BREAK_T
 				_GRT = _GRS - _IMM;
 				break;
-			case RETURN:
-				pc = lr;
-				reg[1] += 4;
-				lr = ram[reg[1]/4];
-				break;
 			case FJEQ:
 				a.i = _FRS;
 				b.i = _FRT;
 				if (a.f == b.f)  {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
 					pc += _IMM - 1;
 				} else {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
 				}
 				break;
 			case JLT:
 				if (_GRS < _GRT) {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
 					pc += _IMM - 1;
 				} else {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
 				}
 				break;
 			case CALL:
+				stack[stack_ptr] = reg[1]/4;
+				stack_ptr++;
 				ram[reg[1]/4] = lr;
+
+/*
+				fprintf(lst_fp, "call(push) stack_num: %d\n",stack_ptr);
+				for (i = 0; i< stack_ptr; i++) {
+					fprintf(lst_fp, "ram[%d]=%d ",stack[i], *(ram+stack[i]));
+				}
+				fprintf(lst_fp, "\n");
+				*/
+
+
+
 				reg[1] -= 4;
 				lr = pc;
 				pc = get_target(ir);
+				break;
+			case RETURN:
+				stack_ptr--;
+				/*
+				fprintf(lst_fp, "return(pop) stack_num: %d\n",stack_ptr);
+				for (i = 0; i < stack_ptr; i++) {
+					fprintf(lst_fp, " ram[%d]=%d",stack[i], *(ram+stack[i]));
+				}
+				fprintf(lst_fp, "\n");
+				*/
+
+				pc = lr;
+				reg[1] += 4;
+				lr = ram[reg[1]/4];
 				break;
 			case SRLI:
 				IF0_BREAK_T
@@ -279,14 +234,8 @@ int simulate(char *sfile) {
 				break;
 			case JEQ:
 				if (_GRS == _GRT) {
-#ifdef CHECK_BRANCH
-					printf("t");
-#endif
 					pc += _IMM - 1;
 				} else {
-#ifdef CHECK_BRANCH
-					printf("f");
-#endif
 				}
 				break;
 			case MULI:
@@ -382,10 +331,6 @@ int simulate(char *sfile) {
 						IF0_BREAK_D
 						_GRD = _GRS * _GRT;
 						break;
-					//case DIV_F:
-						//IF0_BREAK_D
-						//_GRD = _GRS / _GRT;
-						//break;
 					case AND_F:
 						IF0_BREAK_D
 						_GRD = _GRS & _GRT;
@@ -434,6 +379,9 @@ int simulate(char *sfile) {
 	} while(!((funct == HALT_F) && (opcode == SPECIAL)));
 	fprintf(stderr, "max_sendbuf: %d\n", max_sendbuf_count);
 
+#ifdef STATS_FLAG
+	statistics(stderr, 8);
+#endif
 #ifdef LST_FLAG
 	fclose(lst_fp);
 #endif

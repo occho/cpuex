@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <string.h>
-#include "sim.h"
+#include "oc_sim.h"
 
-// print instruction register ////////////////////
-void print_ir(uint32_t ir, FILE *fp) {
+void _print_ir(uint32_t ir, FILE *fp) {
 	static const char *f = "%s\n";
 	static const char *fi = "%s\t8\n";
 	static const char *fg = "%s\tg%d=%d\n";
@@ -16,16 +15,17 @@ void print_ir(uint32_t ir, FILE *fp) {
 	static const char *fff = "%s\tf%d=%08X f%d=%08X\n";
 	static const char *fffl = "%s\tf%d=%08X f%d=%08X %x\n";
 	static const char *ffff = "%s\tf%d=%08X f%d=%08X f%d=%08X\n";
-	static const char *ffff2 = "%s\tf%d=%13.10f f%d=%13.10f f%d=%13.10f\n";
+	//static const char *ffff2 = "%s\tf%d=%13.10f f%d=%13.10f f%d=%13.10f\n";
 	static const char *ffgi = "%s\tf%d=%08X g%d=%d %d\n";
 	uint32_t opcode,funct;
 	const char *name,*type,*f_type,*f_name;
-	union {
-		uint32_t i;
-		float f;
-	} a, b, c;
+	//union {
+		//uint32_t i;
+		//float f;
+	//} a, b, c;
 	
-	fprintf(fp, "%4llx.[%4x] x%08X ", cnt, pc, ir);
+	fprintf(fp, "ram:%d %4lu.[%4x] sp:%d lr:%d ram:%d ", 
+				ram[1046796/4], cnt, pc, reg[1]/4, lr, ram[261539]);
 
 	opcode = get_opcode(ir);
 	funct = get_funct(ir);
@@ -44,7 +44,10 @@ void print_ir(uint32_t ir, FILE *fp) {
 			f_type = FFunctTyMap[funct];
 			f_name = FFunctMap[funct];
 			break;
-		default: break;
+		default: 
+			f_type = NULL;
+			f_name = NULL;
+			break;
 	}
 
 	if (opcode == 0) {
@@ -85,7 +88,7 @@ void print_ir(uint32_t ir, FILE *fp) {
 		}else 
 		if (strcmp(f_type, "ffff") == 0) {
 			// fadd fsub fmul fdiv
-			a.i = _FRD; b.i = _FRS; c.i = _FRT;
+			//a.i = _FRD; b.i = _FRS; c.i = _FRT;
 			fprintf(fp, ffff, f_name, get_rdi(ir), _FRD, get_rsi(ir), _FRS, get_rti(ir), _FRT);
 			//fprintf(fp, ffff2, f_name, get_rdi(ir), a.f, get_rsi(ir), b.f, get_rti(ir), c.f);
 		} else {
