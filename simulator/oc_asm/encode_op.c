@@ -22,14 +22,15 @@ static inline int _inst_is(char *inst, const char *str) {
 #define set_rt() mask_sll(5, 16, rt)
 #define set_rd() mask_sll(5, 11, rd)
 #define set_shamt() mask_sll(5, 6, shamt)
-#define set_funct() mask_sll(5, 6, funct)
+#define set_funct() mask_sll(6, 0, funct)
 #define set_imm() mask_sll(16, 0, imm)
-#define set_target() mask_sll(26, 0, imm)
+#define set_target() mask_sll(26, 0, target)
 static inline uint32_t _fmt_r(uint8_t opcode, uint8_t rs, uint8_t rt, uint8_t rd,
 							uint8_t shamt, uint8_t funct) {
 	return set_opcode() | set_rs() | set_rt() | set_rd() | set_shamt() | set_funct();
 }
 static inline uint32_t fmt_sp(uint8_t rs, uint8_t rt, uint8_t rd, uint8_t funct) {
+	
 	return _fmt_r(SPECIAL,rs,rt,rd,0,funct);
 }
 static inline uint32_t fmt_io(uint8_t rs, uint8_t rd, uint8_t funct) {
@@ -50,6 +51,7 @@ uint32_t encode_op(char *asm_line, char *inst)
 // Special Instructions
 	if (inst_is("add")) {
 		if (myscan(iggg, &rd, &rs, &rt) == 3) {
+
 			return fmt_sp(rs,rt,rd,ADD_F);
 		}
 	}
@@ -177,19 +179,19 @@ uint32_t encode_op(char *asm_line, char *inst)
 	}
 	if (inst_is("fjeq")) {
 		if (myscan(iffl, &rs, &rt, label_name) == 3) {
+			register_op_using_label(label_name);
 			return fmt_i(FJEQ,rs,rt,0);
-			//strcpy(label_name[label_cnt],lname);
-		    //return fjeq(rs,rt,label_cnt++);
 		}
 	}
 	if (inst_is("fjlt")) {
 		if (myscan(iffl, &rs, &rt, label_name) == 3) {
+			register_op_using_label(label_name);
 			return fmt_i(FJLT,rs,rt,0);
 		}
 	}
 	if (inst_is("call")) {
 		if (myscan(il, label_name) == 1) {
-			//strcpy(label_name[label_cnt],lname);
+			register_op_using_label(label_name);
 		    return fmt_j(CALL,0);
 		}
 	}
@@ -198,21 +200,25 @@ uint32_t encode_op(char *asm_line, char *inst)
 	}
 	if (inst_is("jeq")) {
 		if (myscan(iggl, &rs, &rt, label_name) == 3) {
+			register_op_using_label(label_name);
 			return fmt_i(JEQ,rs,rt,0);
 		}
 	}
 	if (inst_is("jne")) {
 		if (myscan(iggl, &rs, &rt, label_name) == 3) {
+			register_op_using_label(label_name);
 			return fmt_i(JNE,rs,rt,0);
 		}
 	}
 	if (inst_is("jlt")) {
 		if (myscan(iggl, &rs, &rt, label_name) == 3) {
+			register_op_using_label(label_name);
 			return fmt_i(JLT,rs,rt,0);
 		}
 	}
 	if (inst_is("jmp")) {
 		if (myscan(il, label_name) == 1) {
+			register_op_using_label(label_name);
 			return fmt_j(JMP,0);
 		}
 	}

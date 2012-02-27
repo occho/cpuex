@@ -10,9 +10,10 @@ static inline int is_directive(char*,char*);
 static inline int is_label(char*,char*);
 static inline int is_comment(char*,char*);
 static inline void output_data(uint32_t data);
-static inline void exec_directive(char*, char*);
 static inline void register_label(char*, char*);
 static inline void encode_and_output(char*, char*);
+static void exec_directive(char*, char*);
+static void resolve_label(void);
 
 static int input_line_cnt;
 static int output_cnt;
@@ -28,6 +29,10 @@ static int err_cnt;
 		_myerr(fmt, ##__VA_ARGS__); \
 		print_asm_line(); \
 	} while(0) 
+
+static int  using_label_cnt;
+static int  lmap_cnt_line[LINE_MAX];
+static char lmap_cnt_name[LINE_MAX][COL_MAX];
 
 int assemble(char *asm_buf, uint32_t *out_buf) {
 	char asm_line[LINE_MAX];
@@ -51,8 +56,63 @@ int assemble(char *asm_buf, uint32_t *out_buf) {
 		input_line_cnt++;
 	}
 
+	resolve_label();
+
 	return output_cnt;
 }
+
+#define get_opcode(ir) eff_dig(6, shift_right_a(26, ir))
+static void resolve_label(void) {
+	int i, label_line, output_line_num;
+	label_t label;
+	for (i=0; i<using_label_cnt; i++) {
+		output_line_num = lmap_cnt_line[i];
+		strcpy(label.name, lmap_cnt_name[i]);
+		label.len = strlen(label.name);
+		label_line = hash_find(label);
+		switch (get_opcode(output_alias[output_line_num])) {
+			case JLT:
+			case JNE:
+			case JEQ:
+			case FJLT:
+			case FJEQ:
+				output_alias[output_line_num] |= eff_dig(16,(label_line - output_line_num));
+				break;
+			case CALL:
+			case JMP:
+				output_alias[output_line_num] |= eff_dig(26, (label_line));
+				break;
+			case ADDI: // SETL
+				output_alias[output_line_num] |= eff_dig(16, (label_line-1)*4);
+				break;
+			default:
+				warning("Unexpected case @ resolve_label\n");
+				break;
+		}
+		
+	}
+
+}
+
+void register_op_using_label(char* lname) {
+	lmap_cnt_line[using_label_cnt] = output_cnt;
+	strcpy(lmap_cnt_name[using_label_cnt], lname);
+	using_label_cnt++;
+}
+static inline void register_label(char *asm_line, char *term0) {
+	char *label_name;
+	label_t label;
+	if ((label_name = strtok(term0, ":")) != NULL) {
+		label.len = strlen(label_name);
+		strcpy(label.name, label_name);
+		label.line = output_cnt;
+		hash_insert(label);
+	} else {
+		myerr("register label");
+	}
+}
+
+
 static inline void output_data(uint32_t data) {
 	output_alias[output_cnt++] = data;
 }
@@ -67,7 +127,7 @@ static inline int _directive_is(char *line, const char* str) {
 	return strstr(line, str) != NULL;
 }
 #define directive_is(str) _directive_is(asm_line, "."str)
-static inline void exec_directive(char *asm_line, char *term0) {
+static void exec_directive(char *asm_line, char *term0) {
 	int heap_size;
 	uint32_t data;
 	int reg_num;
@@ -88,7 +148,7 @@ static inline void exec_directive(char *asm_line, char *term0) {
 		}
 	} else if (directive_is("setL")) { // setL
 		if(sscanf(asm_line, " .setL %%g%d, %s", &reg_num, lname) == 2) {
-			//strcpy(label_name[label_cnt],lname);
+			register_op_using_label(lname);
 			sprintf(line, asm_fmt_iggi, "addi", reg_num, 0, 0);
 			encode_and_output(line, "addi");
 		} else {
@@ -97,19 +157,6 @@ static inline void exec_directive(char *asm_line, char *term0) {
 
 	}
 }
-static inline void register_label(char *asm_line, char *term0) {
-	char *label_name;
-	label_t label;
-	if ((label_name = strtok(term0, ":")) != NULL) {
-		label.len = strlen(label_name);
-		strcpy(label.name, label_name);
-		label.line = output_cnt;
-		hash_insert(label);
-	} else {
-		myerr("register label");
-	}
-}
-
 static inline int set_term0(char *line, char *term0) {
 	return sscanf(line, "%s", term0);
 }

@@ -10,20 +10,17 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "oc_asm.h"
+#include "asm.h"
 
 using namespace std;
 
 void hex2bin(uint32_t,FILE*);
 int encode_op(char *, char *);
-//int mnemonic(char *, char [][LINE_MAX]);
+int mnemonic(char *, char [][LINE_MAX]);
 
 char	label_name[LABEL_MAX][256];	
 uint32_t label_cnt;
  
-
-void warning(const char*fmt, ...);
-
 int	assemble(char *sfile) {
 	char	extbuf[16][LINE_MAX];	
 	char	*buf = extbuf[0];
@@ -37,7 +34,6 @@ int	assemble(char *sfile) {
 	char *dfile;
 	FILE	*fp;	// source file pointer
 	int j,fd,ret,num,len;
-	int output_type;
 
 
 	input_line_cnt = 0;
@@ -100,7 +96,7 @@ int	assemble(char *sfile) {
 			}else if(opcode[0] == '!'){ // -- コメントなので何もしない
  	 	 	}else{
  	 	 		// 命令行
-				//num = mnemonic(opcode, extbuf);
+				num = mnemonic(opcode, extbuf);
 				for (j = 0; j < num; j++) {
 					sscanf(extbuf[j], "%s", opcode);
 					ir = encode_op(opcode, extbuf[j]);
@@ -232,7 +228,6 @@ int	assemble(char *sfile) {
 		ofs.close();
 
 		printf("%s\n", dfile);
-
 
 		return 0;
 	}

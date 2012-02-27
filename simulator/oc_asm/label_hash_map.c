@@ -55,9 +55,9 @@ int hash_find(label_t label) {
     int i, find_flag = 0;
     for (i = 0; i < HASH_MAP_MAX; i++) {
     	if (same_label(label, index)) {
-	    find_flag = 1;
-	    break;
-	}
+			find_flag = 1;
+			break;
+		}
     	index = rehash(index);
     }
     if (find_flag==0) {

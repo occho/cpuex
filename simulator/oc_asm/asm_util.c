@@ -28,4 +28,7 @@ inline uint32_t eff_dig(unsigned dig, uint32_t num) {
 inline uint32_t shift_left_l(unsigned shiftwidth, uint32_t num) {
 	return num << shiftwidth;
 }
+inline uint32_t shift_right_a(unsigned shiftwidth, uint32_t num) {
+	return num >> shiftwidth;
+}
 

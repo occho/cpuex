@@ -17,7 +17,7 @@ static FILE *sfp, *dfp, *lst_fp;
 static int sfd;
 static int lst_flag, dst_flag, mne_flag, be_quiet;
 static int output_line_min;
-static uint32_t binary_data[DATA_NUM];
+static uint32_t binary_data[LINE_MAX];
 static char ex_mne_buf[LINE_MAX*COL_MAX];
 static char asm_buf[LINE_MAX*COL_MAX];
 
@@ -38,14 +38,18 @@ int main(int argc, char **argv) {
 	print_conf();
 	size = read(sfd, asm_buf, LINE_MAX*COL_MAX);
 	if (size<0) { exit(1); }
+	//warning("size: %d\n", size);
 	size = expand_mnemonic(asm_buf, ex_mne_buf);
 	if (size<0) { exit(1); }
+	//warning("size: %d\n", size);
+		//fprintf(dfp,"%s", ex_mne_buf);
 	if ((size = assemble(ex_mne_buf, binary_data)) < 0) {
 		exit(1);
 	}
 	for (i=0;i<size;i++) {
 		fprintf(dfp,"%08x\n", binary_data[i]);
 	}
+	//fprintf(STDERR, "%08x\n", ADD_F);
 
 
 	exit(0);
