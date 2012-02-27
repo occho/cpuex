@@ -5,6 +5,13 @@
 #include <unistd.h>
 #include "oc_asm.h"
 
+enum linst_access_t { REL_ACC, ABS_ACC, LINST_SETL };
+typedef struct inst_with_label_t {
+	int line;
+	char lname[COL_MAX];
+	enum linst_access_t acc;
+} linst_t;
+
 static inline int set_term0(char*,char*);
 static inline int is_directive(char*,char*);
 static inline int is_label(char*,char*);
@@ -12,13 +19,17 @@ static inline int is_comment(char*,char*);
 static inline void output_data(uint32_t data);
 static inline void register_label(char*, char*);
 static inline void encode_and_output(char*, char*);
+static inline void register_linst_setl(char *);
+static void _register_linst(char *lname, enum linst_access_t acc);
 static void exec_directive(char*, char*);
 static void resolve_label(void);
 
 static int input_line_cnt;
 static int output_cnt;
-static uint32_t *output_alias;
 static int err_cnt;
+static linst_t map_lcnt_linst[LINE_MAX];
+static int  registered_linst_cnt;
+static uint32_t *output_alias;
 
 #define print_asm_line() \
 	warning(">>> %s", asm_line)
@@ -30,9 +41,6 @@ static int err_cnt;
 		print_asm_line(); \
 	} while(0) 
 
-static int  using_label_cnt;
-static int  lmap_cnt_line[LINE_MAX];
-static char lmap_cnt_name[LINE_MAX][COL_MAX];
 
 int assemble(char *asm_buf, uint32_t *out_buf) {
 	char asm_line[LINE_MAX];
@@ -63,41 +71,48 @@ int assemble(char *asm_buf, uint32_t *out_buf) {
 
 #define get_opcode(ir) eff_dig(6, shift_right_a(26, ir))
 static void resolve_label(void) {
-	int i, label_line, output_line_num;
+	int i, label_line;
 	label_t label;
-	for (i=0; i<using_label_cnt; i++) {
-		output_line_num = lmap_cnt_line[i];
-		strcpy(label.name, lmap_cnt_name[i]);
+	linst_t linst;
+	for (i=0; i<registered_linst_cnt; i++) {
+		linst = map_lcnt_linst[i];
+		strcpy(label.name, linst.lname);
 		label.len = strlen(label.name);
-		label_line = hash_find(label);
-		switch (get_opcode(output_alias[output_line_num])) {
-			case JLT:
-			case JNE:
-			case JEQ:
-			case FJLT:
-			case FJEQ:
-				output_alias[output_line_num] |= eff_dig(16,(label_line - output_line_num));
+		if ((label_line = hash_find(label))<0) {
+			_myerr("label not found @ resolve_label.hash_find\n>>> %s", label.name);
+		}
+
+		switch (linst.acc) {
+			case REL_ACC :
+				output_alias[linst.line] |= eff_dig(16,(label_line - linst.line));
 				break;
-			case CALL:
-			case JMP:
-				output_alias[output_line_num] |= eff_dig(26, (label_line));
+			case ABS_ACC :
+				output_alias[linst.line] |= eff_dig(26, (label_line));
 				break;
-			case ADDI: // SETL
-				output_alias[output_line_num] |= eff_dig(16, (label_line-1)*4);
+			case LINST_SETL :
+				output_alias[linst.line] |= eff_dig(16, (label_line-1)*4);
 				break;
-			default:
-				warning("Unexpected case @ resolve_label\n");
+			default :
+				warning("Unexpected case @ resolve_label.linst.acc\n");
 				break;
 		}
-		
+
 	}
 
 }
 
-void register_op_using_label(char* lname) {
-	lmap_cnt_line[using_label_cnt] = output_cnt;
-	strcpy(lmap_cnt_name[using_label_cnt], lname);
-	using_label_cnt++;
+void register_linst_abs(char* lname) { _register_linst(lname, ABS_ACC); }
+void register_linst_rel(char* lname) { _register_linst(lname, REL_ACC); }
+static void register_linst_setl(char* lname) { _register_linst(lname, LINST_SETL); }
+static void _register_linst(char* lname, enum linst_access_t acc) {
+	linst_t linst = {
+		.line = output_cnt,
+		.acc = acc,
+	};
+	strcpy(linst.lname, lname);
+	map_lcnt_linst[registered_linst_cnt] = linst;
+
+	registered_linst_cnt++;
 }
 static inline void register_label(char *asm_line, char *term0) {
 	char *label_name;
@@ -106,7 +121,9 @@ static inline void register_label(char *asm_line, char *term0) {
 		label.len = strlen(label_name);
 		strcpy(label.name, label_name);
 		label.line = output_cnt;
-		hash_insert(label);
+		if (hash_insert(label)<0) {
+			myerr("duplicate label @ register_label.hash_insert");
+		}
 	} else {
 		myerr("register label");
 	}
@@ -148,19 +165,17 @@ static void exec_directive(char *asm_line, char *term0) {
 		}
 	} else if (directive_is("setL")) { // setL
 		if(sscanf(asm_line, " .setL %%g%d, %s", &reg_num, lname) == 2) {
-			register_op_using_label(lname);
+			register_linst_setl(lname);
 			sprintf(line, asm_fmt_iggi, "addi", reg_num, 0, 0);
 			encode_and_output(line, "addi");
 		} else {
 			myerr("setL directive");
 		}
-
 	}
 }
 static inline int set_term0(char *line, char *term0) {
 	return sscanf(line, "%s", term0);
 }
-
 static inline int is_directive(char*line, char *term0) {
 	return term0[0] == '.';
 }
@@ -170,4 +185,3 @@ static inline int is_label(char*line, char *term0) {
 static inline int is_comment(char*line, char *term0) {
 	return term0[0] == '!';
 }
-

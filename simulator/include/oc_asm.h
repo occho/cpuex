@@ -39,6 +39,9 @@ uint32_t encode_op(char *asm_line, char *inst);
 extern inline uint32_t eff_dig(unsigned dig, uint32_t num);
 extern inline uint32_t shift_left_l(unsigned shiftwidth, uint32_t num);
 extern inline uint32_t shift_right_a(unsigned shiftwidth, uint32_t num);
-void register_op_using_label(char*);
+void register_linst_rel(char*);
+void register_linst_abs(char*);
+void set_bin(char *buf, uint32_t num);
+void set_hex(char *buf, uint32_t num);
 
 #endif

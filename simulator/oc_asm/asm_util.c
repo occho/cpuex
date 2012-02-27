@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <stdint.h>
 
 void *mygets(char *dst, char *src, int n) {
@@ -32,3 +33,26 @@ inline uint32_t shift_right_a(unsigned shiftwidth, uint32_t num) {
 	return num >> shiftwidth;
 }
 
+
+#define N 32
+void set_bin(char *buf, uint32_t num) {
+	int i;
+	const char *alpha = "01";
+	for (i = 0; i < N; i++) {
+		buf[N-i-1] = alpha[num&1];
+		num >>= 1;
+	}
+}
+#undef N
+#define N 8
+void set_hex(char *buf, uint32_t num) {
+	int i, dig;
+	const char *alpha = "0123456789abcdef";
+
+	for (i = 0; i < N; i++) {
+		dig = eff_dig(4, num);
+		buf[N-i-1] = alpha[dig];
+		num>>=4;
+	}
+}
+#undef N

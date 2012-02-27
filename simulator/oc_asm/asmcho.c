@@ -7,14 +7,14 @@
 #include <fcntl.h>
 #include "oc_asm.h"
 enum out_fmt_t { OFMT_BIN, OFMT_STR_BIN, OFMT_STR_HEX, OFMT_COE, 
-				 OFMT_EX_MNE};
+				 OFMT_EX_MNE };
 static enum out_fmt_t output_type = OFMT_BIN;
 
 static char *dfile = (char*) "ika.out";
 static char *lst_file = (char*) "ika.lst";
 static char *sfile;
-static FILE *sfp, *dfp, *lst_fp;
-static int sfd;
+static FILE *lst_fp;
+static int sfd, dfd;
 static int lst_flag, dst_flag, mne_flag, be_quiet;
 static int output_line_min;
 static uint32_t binary_data[LINE_MAX];
@@ -28,31 +28,36 @@ static void conf_sfile(int argc, char** argv);
 static void conf_out_fmt(int argc, char** argv); 
 static void open_files(void);
 static void close_files(void);
+static void output_file(char*buf, int size);
+static void mywrite(char *buf, int num);
 int assemble(char *buf, uint32_t* binary_data);
 int expand_mnemonic(char *asm_buf, char *ex_mne_buf);
 
 int main(int argc, char **argv) {
-	int i,size;
+	int size;
 	configure(argc, argv);
 	open_files();
 	print_conf();
 	size = read(sfd, asm_buf, LINE_MAX*COL_MAX);
 	if (size<0) { exit(1); }
-	//warning("size: %d\n", size);
 	size = expand_mnemonic(asm_buf, ex_mne_buf);
 	if (size<0) { exit(1); }
-	//warning("size: %d\n", size);
-		//fprintf(dfp,"%s", ex_mne_buf);
-	if ((size = assemble(ex_mne_buf, binary_data)) < 0) {
-		exit(1);
+	if (output_type == OFMT_EX_MNE) {
+		mywrite(ex_mne_buf, size);
+	} else {
+		size = assemble(ex_mne_buf, binary_data);
+		if (size<0) { exit(1); }
+		output_file((char*)binary_data, size*4);
 	}
-	for (i=0;i<size;i++) {
-		fprintf(dfp,"%08x\n", binary_data[i]);
-	}
-	//fprintf(STDERR, "%08x\n", ADD_F);
-
-
 	exit(0);
+}
+
+static void mywrite(char *buf, int num) {
+	int nwrite;
+	while ((nwrite = write(dfd, buf, num))>0) {
+		num -= nwrite;
+	}
+	
 }
 static void configure(int argc, char** argv) {
 	conf_sfile(argc, argv);
@@ -65,18 +70,67 @@ static void conf_sfile(int argc, char** argv) {
 		exit(1);
 	}
 	sfile = argv[1];
-
 	if (sfile==NULL) {
 		warning("Not Found: source file\n");
 		exit(1);
 	}
 
 }
+static void output_file(char*buf, int size) {
+	int i;
+	char linebuf[64];
+	uint32_t *buf32 = (uint32_t*)buf;
+	switch (output_type) {
+		case OFMT_BIN :
+			mywrite(buf, size);
+			break;
+		case OFMT_STR_BIN :
+			linebuf[0] = linebuf[33] = '"';
+			linebuf[34] = ',';
+			linebuf[35] = '\n';
+			for (i=0; i<size/4; i++) {
+				set_bin(linebuf+1, buf32[i]);
+				mywrite(linebuf, 36);
+			}
+			for (i=i; i<output_line_min; i++) {
+				mywrite("\"00000000000000000000000000000000\",\n", 36);
+			}
+			break;
+		case OFMT_STR_HEX :
+			linebuf[0] = linebuf[9] = '"';
+			linebuf[10] = ',';
+			linebuf[11] = '\n';
+			for (i=0; i<size/4; i++) {
+				set_hex(linebuf+1, buf32[i]);
+				mywrite(linebuf, 12);
+			}
+			for (i=i; i<output_line_min; i++) {
+				mywrite("\"00000000\",\n", 12);
+			}
+			break;
+		case OFMT_COE :
+			mywrite("memory_initialization_radix=16;\n", 32);
+			mywrite("memory_initialization_vector=\n", 30);
+			linebuf[8] = ',';
+			linebuf[9] = '\n';
+			for (i=0; i<size/4; i++) {
+				if (i == size/4-1) {
+					linebuf[8]=';';
+				}
+				set_hex(linebuf, buf32[i]);
+				mywrite(linebuf, 10);
+			}
+			break;
+		case OFMT_EX_MNE :
+		default :
+			warning("Unexpected case @ output_file\n");
+			break;
+	}
+}
 static void close_files(void) {
-	fclose(sfp);
 	close(sfd); 
 	if (dst_flag == 0) {
-		fclose(dfp);
+		close(dfd);
 	}
 	if (lst_flag > 0) {
 		fclose(lst_fp);
@@ -84,12 +138,6 @@ static void close_files(void) {
 }
 static void open_files(void) {
 
-	sfp = fopen(sfile, "r");
-	if (sfp == NULL) {
-		warning("sfile @ open_files: %s\n", sfile);
-		perror("fopen");
-		exit(1);
-	};
 	sfd = open(sfile, O_RDONLY);
 	if (sfd < 0) {
 		warning("sfile @ open_files: %s\n", sfile);
@@ -98,16 +146,16 @@ static void open_files(void) {
 	}
 
 	if (dst_flag == 1) {
-		dfp = stdout;
+		dfd = 1;
 	} else if (dst_flag == 2) {
-		dfp = stderr;
+		dfd = 2;
 	} else {
-		dfp = fopen(dfile, "wr");
-		if (dfp == NULL) {
+		dfd = open(dfile, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
+		if (dfd < 0) {
 			warning("dfile @ open_files: %s\n", dfile);
-			perror("fopen");
+			perror("open");
 			exit(1);
-		};
+		}
 	}
 
 

@@ -179,19 +179,19 @@ uint32_t encode_op(char *asm_line, char *inst)
 	}
 	if (inst_is("fjeq")) {
 		if (myscan(iffl, &rs, &rt, label_name) == 3) {
-			register_op_using_label(label_name);
+			register_linst_rel(label_name);
 			return fmt_i(FJEQ,rs,rt,0);
 		}
 	}
 	if (inst_is("fjlt")) {
 		if (myscan(iffl, &rs, &rt, label_name) == 3) {
-			register_op_using_label(label_name);
+			register_linst_rel(label_name);
 			return fmt_i(FJLT,rs,rt,0);
 		}
 	}
 	if (inst_is("call")) {
 		if (myscan(il, label_name) == 1) {
-			register_op_using_label(label_name);
+			register_linst_abs(label_name);
 		    return fmt_j(CALL,0);
 		}
 	}
@@ -200,25 +200,25 @@ uint32_t encode_op(char *asm_line, char *inst)
 	}
 	if (inst_is("jeq")) {
 		if (myscan(iggl, &rs, &rt, label_name) == 3) {
-			register_op_using_label(label_name);
+			register_linst_rel(label_name);
 			return fmt_i(JEQ,rs,rt,0);
 		}
 	}
 	if (inst_is("jne")) {
 		if (myscan(iggl, &rs, &rt, label_name) == 3) {
-			register_op_using_label(label_name);
+			register_linst_rel(label_name);
 			return fmt_i(JNE,rs,rt,0);
 		}
 	}
 	if (inst_is("jlt")) {
 		if (myscan(iggl, &rs, &rt, label_name) == 3) {
-			register_op_using_label(label_name);
+			register_linst_rel(label_name);
 			return fmt_i(JLT,rs,rt,0);
 		}
 	}
 	if (inst_is("jmp")) {
 		if (myscan(il, label_name) == 1) {
-			register_op_using_label(label_name);
+			register_linst_abs(label_name);
 			return fmt_j(JMP,0);
 		}
 	}

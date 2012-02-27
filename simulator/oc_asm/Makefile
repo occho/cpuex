@@ -23,7 +23,7 @@ encode_op.o: $(ASMH) $(UTIL)
 label_hash_map.o: $(ASMH) $(UTIL)
 
 asm:
-	$(ASM) $(ASM_FLAGS) $(ASM_TARGET)
+	$(ASM) $(ASM_TARGET) $(ASM_FLAGS) -o $(TEST_TARGET)
 rt:
-	$(ASM) $(MIN_RT:%=%.s)
+	$(ASM) $(MIN_RT:%=%.s) -o $(MIN_RT)
 
