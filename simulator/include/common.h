@@ -1,7 +1,6 @@
 
 #ifndef _COMMON_HEAD
 #define _COMMON_HEAD
-#include <stdint.h>
 #define INST_NUM 64	// 6bit 63
 #define REG_NUM 32
 //#define ROM_NUM (4 * 1024 * 1024)
@@ -100,4 +99,6 @@
 #define I_OF_F 036
 #define F_OF_I 046
 #define SQRT 056
+
+
 #endif

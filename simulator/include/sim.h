@@ -3,6 +3,7 @@
 #define _SIM_HEAD
 #include "common.h"
 #include <stdio.h>
+#include <stdint.h>
 #define SIM_LOG "simlog"
 extern int32_t reg[REG_NUM];
 extern uint32_t freg[REG_NUM];

@@ -1,11 +1,9 @@
-# Makefile.in
 CC = g++
 CXX = g++
 LD = g++
-RM = rm -f
 CFLAGS = -Wall -O3 -funroll-loops
 CXXFLAGS = -Wall -O3 -funroll-loops
-LDFLAGS = -Wall -O3 -lm
+LDFLAGS = -Wall -O3
 
 CACHE = ../cache
 PPM_DIR = $(CACHE)/ppm_p6
@@ -17,9 +15,9 @@ PICT_DIR = $(HOME_DIR)/pict
 DIFF_DIR = $(HOME_DIR)/pict/diff
 COMPILER_DIR = $(HOME_DIR)/../compiler
 MIN_RT = $(COMPILER_DIR)/test/min-rt/min-rt
-###################################
+########################################################################
 # Set Vars below
-###################################
+########################################################################
 #TEST_TARGET = $(subst $(COMPILER_DIR)/test/,, $(subst .s,, $(shell ls $(HOME_DIR)/../compiler/test/*.s)))
 TEST_TARGET = float
 #RT_TARGET = $(basename $(shell ls $(HOME_DIR)/pict/sld))
@@ -31,8 +29,7 @@ RT_TARGET = contest
 #ASM_FLAGS = -b
 #XSIM_FLAGS = -cnt
 EOG =   (eog $$ppm &);
-###################################
-###################################
+########################################################################
 
 
 .PHONY: all asm sim clean rt
