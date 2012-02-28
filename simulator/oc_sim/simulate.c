@@ -45,7 +45,6 @@ int simulate(void) {
 		pc++;
 		if (!(cnt % 100000000)) { warning("."); }
 	} while (exec(ir)==0);
-	warning("\n");
 	return 0;
 } 
 

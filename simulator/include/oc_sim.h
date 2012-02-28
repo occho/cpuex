@@ -52,6 +52,8 @@ int statistics(FILE*, int);
 extern FILE* err_fp;
 #define warning(fmt, ...) \
 	fprintf(err_fp, fmt, ##__VA_ARGS__)
+#define warning_nl() warning("\n")
+
 void _print_ir(uint32_t,FILE*);
 #define print_ir(x) _print_ir(x, err_fp)
 
