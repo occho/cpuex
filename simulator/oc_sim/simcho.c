@@ -66,7 +66,15 @@ static void print_usage(char*name) {
 static void configure(int argc, char **argv) {
 	int opt;
 	err_fp = stderr;
+	if (argc < 2) {
+		print_usage(argv[0]);
+		exit(1);
+	}
 	sfile = argv[1];
+	if (sfile==NULL) {
+		warning("Not Found: source file\n");
+		exit(1);
+	}
 
 	while ((opt = getopt(argc, argv, "l:")) != -1) {
 		switch (opt) {
