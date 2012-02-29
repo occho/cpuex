@@ -1,0 +1,2 @@
+
+SIM_MACRO += -D LOG_FLAG

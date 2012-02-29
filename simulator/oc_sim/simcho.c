@@ -8,8 +8,6 @@
 #include <fcntl.h>
 #include <signal.h>
 #include "oc_sim.h"
-
-static int log_flag;
 static char *log_file = (char*) "ika.log";
 static char *sfile;
 
@@ -22,21 +20,35 @@ static void print_elapsed_time(void);
 static void print_result(void);
 static void print_usage(char*);
 FILE *err_fp;
+FILE *log_fp;
+static void open_log_file(void);
 
 static struct timeval tv1,tv2;
 int main(int argc, char **argv, char **envp) {
 	configure(argc, argv);
-	print_conf();
 	register_segv_handler();
+	open_log_file();
 	prom_set(argc, argv);
+	print_conf();
 	gettimeofday(&tv1, NULL);
 	simulate();
 	gettimeofday(&tv2, NULL);
 	print_result();
 	
-	return 0;
+	exit(0);
 }
 
+static void open_log_file(void) {
+#ifdef LOG_FLAG
+	log_fp = fopen(log_file, "w");
+	if (log_fp==NULL) {
+		perror("fopen log_file");
+		exit(1);
+	}
+	fprintf(log_fp, "running %s\n", sfile);
+	fprintf(log_fp, "cnt(hex).[pc(hex)]\n");
+#endif
+}
 
 #define print_option(fmt, ...) \
 	warning("\t"fmt"\n", ##__VA_ARGS__)
@@ -44,7 +56,7 @@ static void print_usage(char*name) {
 	warning("\n");
 	warning("USAGE\t: %s $file [$option]\n", name);
 	warning("OPTIONS\t:\n");
-	print_option("-l [$log_file]\t: place log output in file $log_file");
+	print_option("-l [$log_file]\t: output log if LOG_FLAG macro is defined");
 	warning("\n");
 }
 #undef print_option
@@ -54,14 +66,10 @@ static void configure(int argc, char **argv) {
 	err_fp = stderr;
 	sfile = argv[1];
 
-	while ((opt = getopt(argc, argv, "l")) != -1) {
+	while ((opt = getopt(argc, argv, "l:")) != -1) {
 		switch (opt) {
 			case 'l' :
-				log_flag = 1;
-				if ((argc != optind) && (argv[optind][0] != '-')) {
-					log_file = argv[optind];
-					optind++;
-				}
+				log_file = optarg;
 				break;
 
 			default :
@@ -103,7 +111,7 @@ static void register_segv_handler(void) {
 }
 
 void segv_handler(int n) {
-	uint32_t ir = prom[pc/4 - 1];
+	uint32_t ir = prom[pc-1];
 	warning("せぐふぉー@%lu.[%x] ir:%08X ", cnt, pc, ir);
 	print_ir(ir);
 	warning("\n");
@@ -116,11 +124,12 @@ static void print_conf(void) {
 	warning("\n");
 	warning("######################## SIMCHO CONFIGURATION ########################\n\n");
 	print_val("source\t: %s", sfile);
-	if (log_flag > 0) {
-		print_val("log file\t: %s", log_file);
-	} else {
-		print_val("log file\t: no output");
-	}
+
+#ifdef LOG_FLAG
+	print_val("log file\t: %s", log_file);
+#else
+	print_val("log file\t: no output");
+#endif
 	warning_nl();
 	warning("========================== RUNNING PROGRAM ===========================\n");
 }
