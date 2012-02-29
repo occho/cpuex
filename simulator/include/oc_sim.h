@@ -2,14 +2,13 @@
 #ifndef _SIM_HEAD
 #define _SIM_HEAD
 #include "common.h"
-#include <stdio.h>
 #include <stdint.h>
 extern uint32_t prom[ROM_NUM];
 extern uint32_t ram[RAM_NUM];
 extern int32_t reg[REG_NUM];
 extern uint32_t freg[REG_NUM];
 extern uint32_t pc;
-extern uint32_t ir;
+//extern uint32_t ir;
 extern int32_t lr;
 extern uint64_t cnt;
 
@@ -42,7 +41,8 @@ extern const char *SFunctMap[INST_NUM];
 extern const char *FFunctMap[INST_NUM];
 extern const char *IOFunctMap[INST_NUM];
 
-int statistics(FILE*, int);
+void analyse(uint32_t);
+void print_analysis(FILE*);
 extern FILE* err_fp;
 #define warning(fmt, ...) \
 	fprintf(err_fp, fmt, ##__VA_ARGS__)

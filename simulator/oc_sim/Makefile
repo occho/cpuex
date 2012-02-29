@@ -17,10 +17,10 @@ FPU =  $(FPU_:%=$(FPU_DIR)/%.o)
 
 FLAGS = ../Makefile.sim
 UTIL = sim_util.o 
-simcho: simcho.o simulate.o print_ir.o statistics.o $(FPU) $(UTIL)
+simcho: simcho.o simulate.o print_ir.o analyse.o $(FPU) $(UTIL)
 simcho.o: $(SIMH) simulate.o print_ir.o $(UTIL) $(FLAGS)
-simulate.o: $(SIMH) statistics.o $(FPU)  $(UTIL) $(FLAGS)
-statistics.o: $(SIMH) $(UTIL)
+simulate.o: $(SIMH) analyse.o $(FPU)  $(UTIL) $(FLAGS)
+analyse.o: $(SIMH) $(UTIL)
 print_ir.o: $(SIMH) $(UTIL)
 sim_util.o: $(SIMH)
 
