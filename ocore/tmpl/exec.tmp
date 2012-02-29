@@ -37,7 +37,7 @@ entity exec is
 end exec;
 architecture RTL of exec is
 	component myfadd is
-<%block name="fpu_entity">
+<%block name="fpu_entity2">
 	port ( 
 		CLK_TABLE : in std_logic;
 		I1, I2 : in  std_logic_vector(31 downto 0);
@@ -45,13 +45,18 @@ architecture RTL of exec is
 </%block>
 	end component;
 	component myfmul is
-${fpu_entity()}
+${fpu_entity2()}
 	end component;
 	component myfsqrt is
-${fpu_entity()}
+<%block name="fpu_entity1">
+	port ( 
+		CLK_TABLE : in std_logic;
+		I  : in  std_logic_vector(31 downto 0);
+		O  : out std_logic_vector(31 downto 0));
+</%block>
 	end component;
 	component myfinv is
-${fpu_entity()}
+${fpu_entity1()}
 	end component;
 
 	signal op_code : std_logic_vector(5 downto 0);

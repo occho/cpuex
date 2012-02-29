@@ -2,6 +2,7 @@
 #ifndef _ASM_HEAD
 #define _ASM_HEAD
 #include "common.h"
+#include <stdint.h>
 #define ASM_LOG "asmlog"
 #define LABEL_MAX (128 * 1024)
 #define	LINE_MAX	512	// asmの一行の長さの最大値
@@ -50,7 +51,6 @@ PROTO_I(mvlo);
 PROTO_I(addi);
 PROTO_I(subi);
 PROTO_I(muli);
-PROTO_I(divi);
 PROTO_I(slli);
 PROTO_I(srli);
 PROTO_J(jmp);
@@ -71,12 +71,6 @@ PROTO_I(setl);
 PROTO_I(fjeq);
 PROTO_I(fjlt);
 
-//PROTO_R(_sin);
-//PROTO_R(_cos);
-//PROTO_R(_atan);
-//PROTO_R(_sqrt);
-//PROTO_R(_int_of_float);
-//PROTO_R(_float_of_int);
 PROTO_F(mov);
 PROTO_F(_not);
 PROTO_F(input);
@@ -100,8 +94,6 @@ PROTO_F(fst);
 PROTO_F(movlr);
 PROTO_F(mul);
 PROTO_I(padd);
-//PROTO_F(padd);
-PROTO_F(_div);
 PROTO_F(_and);
 PROTO_F(_or);
 PROTO_F(halt);

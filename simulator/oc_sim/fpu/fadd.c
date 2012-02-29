@@ -17,7 +17,6 @@ uint32_t e3;
 uint32_t c1 = ((i1 & 0x7fffff) | 0x800000);
 uint32_t c2 = ((i2 & 0x7fffff) | 0x800000);
 uint32_t c3;
-uint32_t c3_tmp;
 	int i, cnt;
 
 /*符号*/

@@ -15,7 +15,7 @@ uint32_t freg[REG_NUM];
 uint32_t rom[ROM_NUM];
 uint32_t ram[RAM_NUM];
 uint32_t pc;
-uint32_t lr, tmplr;
+int32_t lr, tmplr;
 long long unsigned cnt;
 void to_bin(uint32_t);
 #define dump(x) fprintf(stderr, "%s: ", #x); to_bin(x);
@@ -302,10 +302,6 @@ int simulate(char *sfile) {
 				IF0_BREAK_S
 				_GRS = (_GRS & (0xffff<<16)) | (_IMM & 0xffff);
 				break;
-			case DIVI:
-				IF0_BREAK_T
-				_GRT = _GRS / _IMM;
-				break;
 			case FPI:
 				switch(funct) {
 					case FMUL_F:
@@ -382,10 +378,6 @@ int simulate(char *sfile) {
 						IF0_BREAK_D
 						_GRD = _GRS * _GRT;
 						break;
-					//case DIV_F:
-						//IF0_BREAK_D
-						//_GRD = _GRS / _GRT;
-						//break;
 					case AND_F:
 						IF0_BREAK_D
 						_GRD = _GRS & _GRT;

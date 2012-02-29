@@ -1,10 +1,14 @@
 
 *.o
+*.ln
 bit/
 pdf/
 util/
 mycom/
 cache/
+simulator/cache/
+simulator/toNU_MA/
 compiler/
 ise_space/
 vsim_space/
+shinshu/

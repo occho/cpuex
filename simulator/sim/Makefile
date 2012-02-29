@@ -5,19 +5,19 @@ TARGET = oc_simcho
 SIMH = common.h sim.h
 HOME_DIR = ../
 include ../Makefile.in
-CACHE = ../../cache
+
 CFLAGS += -I ../include/ $(DEBUG_MACRO)
 CXXFLAGS += -I ../include/
 vpath %.h ../include/
 SIM_TARGET = $(TEST_TARGET:%=$(COMPILER_DIR)/test/%)
 
-FPU_DIR = ../fpu
-FPU_ = finv fsqrt fadd fmul
-FPU =  $(FPU_:%=$(FPU_DIR)/%.o)
+FPU_DIR = ./fpu
+FPU =  $(FPU_DIR)/finv.o $(FPU_DIR)/fsqrt.o $(FPU_DIR)/fadd.o $(FPU_DIR)/fmul.o
 
 simcho: simcho.o simulate.o print_ir.o print_state.o statistics.o imap.o  $(FPU) debug.o
 simcho.o: $(SIMH) simulate.o imap.o print_ir.o debug.o
 simulate.o: $(SIMH) print_state.o statistics.o $(FPU) 
+#../Makefile.in
 debug.o: $(SIMH) print_ir.o
 print_state.o: $(SIMH) print_ir.o
 print_ir.o: $(SIMH) imap.o
@@ -38,9 +38,8 @@ rt:
 		sld=$(SLD_DIR)/$$name'.sld'; \
 		sldbin=$(SLDBIN_DIR)/$$name'.sldbin'; \
 		ppm=$(PPM_DIR)/$$name'.ppm'; \
-		original=$(PPM_ANS)/$$name'.ppm'; \
+		original=$(PPM_ANS_DIR)/$$name'.ppm'; \
 		$(SIM) $(MIN_RT) $(SIM_FLAGS) < $$sldbin > $$ppm; \
-		$(EOG) \
 	done 
 
-##< $$sld ; \
+RM_TARGET += $(FPU)

@@ -42,34 +42,34 @@ end exec;
 architecture RTL of exec is
 	component myfadd is
 
-port ( 
-	CLK_TABLE : in std_logic;
-    I1, I2 : in  std_logic_vector(31 downto 0);
-    O  : out std_logic_vector(31 downto 0));
+	port ( 
+		CLK_TABLE : in std_logic;
+		I1, I2 : in  std_logic_vector(31 downto 0);
+		O  : out std_logic_vector(31 downto 0));
 
 	end component;
 	component myfmul is
 
-port ( 
-	CLK_TABLE : in std_logic;
-    I1, I2 : in  std_logic_vector(31 downto 0);
-    O  : out std_logic_vector(31 downto 0));
+	port ( 
+		CLK_TABLE : in std_logic;
+		I1, I2 : in  std_logic_vector(31 downto 0);
+		O  : out std_logic_vector(31 downto 0));
 
 	end component;
 	component myfsqrt is
 
-port ( 
-	CLK_TABLE : in std_logic;
-    I1, I2 : in  std_logic_vector(31 downto 0);
-    O  : out std_logic_vector(31 downto 0));
+	port ( 
+		CLK_TABLE : in std_logic;
+		I  : in  std_logic_vector(31 downto 0);
+		O  : out std_logic_vector(31 downto 0));
 
 	end component;
 	component myfinv is
 
-port ( 
-	CLK_TABLE : in std_logic;
-    I1, I2 : in  std_logic_vector(31 downto 0);
-    O  : out std_logic_vector(31 downto 0));
+	port ( 
+		CLK_TABLE : in std_logic;
+		I  : in  std_logic_vector(31 downto 0);
+		O  : out std_logic_vector(31 downto 0));
 
 	end component;
 
