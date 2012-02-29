@@ -30,9 +30,11 @@ int main(int argc, char **argv, char **envp) {
 	open_log_file();
 	prom_set(argc, argv);
 	print_conf();
+
 	gettimeofday(&tv1, NULL);
 	simulate();
 	gettimeofday(&tv2, NULL);
+
 	print_result();
 	
 	exit(0);
@@ -130,6 +132,11 @@ static void print_conf(void) {
 #else
 	print_val("log file\t: no output");
 #endif
+#ifdef ANALYSE_FLAG
+	print_val("analyse\t: on");
+#else
+	print_val("analyse\t: off (enabled if ANALYSE_FLAG macro is defined)");
+#endif
 	warning_nl();
 	warning("========================== RUNNING PROGRAM ===========================\n");
 }
@@ -139,6 +146,8 @@ static void print_result(void) {
 	warning_nl();
 	print_elapsed_time();
 	print_val("cnt\t: %lu", cnt);
+	print_val("analyse result");
+	print_analysis(stderr);
 	warning_nl();
 	warning("######################################################################\n");
 	warning_nl();

@@ -116,7 +116,6 @@ void _print_ir(uint32_t ir, FILE *fp) {
 			break;
 	}
 
-	fflush(fp);
 }
 #undef unknown_ir
 #undef printf_val
