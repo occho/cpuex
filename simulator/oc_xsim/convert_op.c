@@ -8,9 +8,11 @@
 static void print_gr(int,int,int);
 static void print_fr(int,int);
 static char *gr_label(int,int,int);
+static char *fr_label(int);
 #define grl(idx) gr_label(idx, 0, 0)
 #define grlq(idx) gr_label(idx, 0, 1)
 #define grldst(idx) gr_label(idx, 1, 0)
+#define frl(idx) fr_label(idx)
 
 
 #define print_line(inst, fmt, ...) \
@@ -20,10 +22,13 @@ static char *gr_label(int,int,int);
 #define COMMA ", "
 #define GR "%s"
 #define GRc "%s"COMMA
+#define FR "%s"
+#define FRc "%s"COMMA
 #define IMM "$%d"
 #define IMMc "$%d"COMMA
 #define TMP "%%eax"
 #define TMPc "%%eax"COMMA
+#define LABEL "%s"
 static inline int _inst_is(char *inst, const char *str) {
 	return strcmp(inst, str) == 0;
 }
@@ -65,260 +70,232 @@ int convert_op(char *asm_line, char *term0)
 	 		if ((rd == rs) && (is_xreg(rs) || is_xreg(rt))) {
 				print_line(addl, GRc GR, grl(rt), grldst(rs));
 			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(addl),G(rt),SC(%edx),NL;
-				OP(movl),S(%edx),GC(rd),NL;
+				print_line(movl, GRc TMP, grl(rs));
+				print_line(addl, GRc TMP, grl(rt));
+				print_line(movl, TMPc GR, grldst(rd));
 			}
 
 		    return 0;
 		}
 	}
-	if(strcmp(term0, "sub") == 0){
-		if(sscanf(asm_line, asm_fmt_iggg, tmp, &rd, &rs,&rt) == 4) {
+	if(inst_is("sub")) {
+		if (myscan(iggg, &rd, &rs, &rt) == 3) {
 	 		if ((rd == rs) && (is_xreg(rs) || is_xreg(rt))) {
-				OP(subl),G(rt),GC(rs),NL;
+				print_line(subl, GRc GR, grl(rt), grldst(rs));
 			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(subl),G(rt),SC(%edx),NL;
-				OP(movl),S(%edx),GC(rd),NL;
+				print_line(movl, GRc TMP, grl(rs));
+				print_line(subl, GRc TMP, grl(rt));
+				print_line(movl, TMPc GR, grldst(rd));
 			}
-		    return 0;
-		}
-	}
-	if(strcmp(term0, "mul") == 0){
-		if(sscanf(asm_line, asm_fmt_iggg, tmp, &rd, &rs,&rt) == 4) {
-	 		if ((rd == rs) && (is_xreg(rs) || is_xreg(rt))) {
-				OP(imull),G(rt),GC(rs),NL;
-			//} else if ((rd == rt) && (is_xreg(rd))) {
-				//OP(imull),G(rs),GC(rd),NL;
-			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(imull),G(rt),SC(%edx),NL;
-				OP(movl),S(%edx),GC(rd),NL;
-			}
-		    return 0;
-		}
-	}
-	if(strcmp(term0, "div") == 0){
-		if(sscanf(asm_line, asm_fmt_iggg, tmp, &rd, &rs,&rt) == 4) {
-	 		if ((rd == rs) && (is_xreg(rs) || is_xreg(rt))) {
-				OP(divl),G(rt),GC(rs),NL;
-			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(divl),G(rt),SC(%edx),NL;
-				OP(movl),S(%edx),GC(rd),NL;
-			}
-		    return 0;
-		}
-	}
-	if(strcmp(term0, "addi") == 0){
-		if(sscanf(asm_line, asm_fmt_iggi, tmp, &rt, &rs, &imm) == 4) {
 
+		    return 0;
+		}
+	}
+	if(inst_is("mul")) {
+		if (myscan(iggg, &rd, &rs, &rt) == 3) {
+	 		if ((rd == rs) && (is_xreg(rs) || is_xreg(rt))) {
+				print_line(imull, GRc GR, grl(rt), grldst(rs));
+			} else {
+				print_line(movl, GRc TMP, grl(rs));
+				print_line(imull, GRc TMP, grl(rt));
+				print_line(movl, TMPc GR, grldst(rd));
+			}
+
+		    return 0;
+		}
+	}
+
+	if(inst_is("addi")) {
+		if (myscan(iggi, &rt, &rs, &imm) == 3) {
 			if (rs == 0) {
-				OP(movl),IM(imm),GC(rt),NL;
+				print_line(movl, IMMc GR, imm, grldst(rt));
 	 		} else if ((rt == rs) && (is_xreg(rs) || is_xreg(rt))) {
-				OP(addl),IM(imm),GC(rt), NL;
+				print_line(addl, IMMc GR, imm, grldst(rt));
 			} else if (is_xreg(rs) || is_xreg(rt)) {
-				OP(movl),G(rs),GC(rt),NL;
-				OP(addl),IM(imm),GC(rt), NL;
+				print_line(movl, GRc GR, grl(rs), grldst(rt));
+				print_line(addl, IMMc GR, imm, grldst(rt));
 			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(addl),IM(imm),SC(%edx), NL;
-				OP(movl),S(%edx),GC(rt),NL;
+				print_line(movl, GRc TMP, grl(rs));
+				print_line(addl, IMMc TMP, imm);
+				print_line(movl, TMPc GR, grldst(rt));
 			}
 
 		    return 0;
 		}
 	}
-	if(strcmp(term0, "subi") == 0){
-		if(sscanf(asm_line, asm_fmt_iggi, tmp, &rt, &rs, &imm) == 4) {
+	if(inst_is("subi")) {
+		if (myscan(iggi, &rt, &rs, &imm) == 3) {
 
 	 		if ((rt == rs) && (is_xreg(rs) || is_xreg(rt))) {
-				OP(subl),IM(imm),GC(rt), NL;
+				print_line(subl, IMMc GR, imm, grldst(rt));
 			} else if (is_xreg(rs) || is_xreg(rt)) {
-				OP(movl),G(rs),GC(rt),NL;
-				OP(subl),IM(imm),GC(rt), NL;
+				print_line(movl, GRc GR, grl(rs), grldst(rt));
+				print_line(subl, IMMc GR, imm, grldst(rt));
 			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(subl),IM(imm),SC(%edx), NL;
-				OP(movl),S(%edx),GC(rt),NL;
+				print_line(movl, GRc TMP, grl(rs));
+				print_line(subl, IMMc TMP, imm);
+				print_line(movl, TMPc GR, grldst(rt));
 			}
 
 		    return 0;
 		}
 	}
-	if(strcmp(term0, "muli") == 0){
-		if(sscanf(asm_line, asm_fmt_iggi, tmp, &rt, &rs, &imm) == 4) {
+	if(inst_is("muli")) {
+		if (myscan(iggi, &rt, &rs, &imm) == 3) {
 	 		if ((rt == rs) && (is_xreg(rs) || is_xreg(rt))) {
-				OP(imull),IM(imm),GC(rt), NL;
+				print_line(imull, IMMc GR, imm, grldst(rt));
 			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(imull),IM(imm),SC(%edx), NL;
-				OP(movl),S(%edx),GC(rt),NL;
+				print_line(movl, GRc TMP, grl(rs));
+				print_line(imull, IMMc TMP, imm);
+				print_line(movl, TMPc GR, grldst(rt));
 			}
 		    return 0;
 		}
 	}
-	if(strcmp(term0, "divi") == 0){
-		if(sscanf(asm_line, asm_fmt_iggi, tmp, &rt, &rs, &imm) == 4) {
-	 		if ((rt == rs) && (is_xreg(rs) || is_xreg(rt))) {
-				OP(divl),IM(imm),GC(rt), NL;
-			} else if (is_xreg(rs) || is_xreg(rt)) {
-				OP(movl),G(rs),GC(rt),NL;
-				OP(divl),IM(imm),GC(rt), NL;
-			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(divl),IM(imm),SC(%edx), NL;
-				OP(movl),S(%edx),GC(rt),NL;
-			}
-		    return 0;
-		}
-	}
-	if(strcmp(term0, "input") == 0){
-		if(sscanf(asm_line, asm_fmt_ig, tmp, &rd) == 2) {
-			OP(xorl),S(%eax),SC(%eax),NL;
-			OP(call),S(InChar),NL;
-			OP(movl),S(%eax),GC(rd),NL;
-		    return 0;
-		}
-	}
+	if (inst_is("input")) {
+		if (myscan(ig, &rd) == 1) {
+			print_line(xorl, TMPc TMP);
+			print_line(call, LABEL, "InChar");
+			print_line(movl, TMPc GR, grldst(rd));
 
-	if(strcmp(term0, "output") == 0){
-		if(sscanf(asm_line, asm_fmt_ig, tmp, &rs) == 2) {
-			OP(movl),G(rs),SC(%eax),NL;
-			OP(call),S(OutChar),NL;
+		    return 0;
+		}
+	}
+	if (inst_is("output")) {
+		if (myscan(ig, &rs) == 1) {
+			print_line(movl, GRc LABEL, grl(rs), "%eax");
+			print_line(call, LABEL, "OutChar");
+			return 0;
+		}
+	}
+	if (inst_is("outputH")) {
+		if (myscan(ig, &rs) == 1) {
+			print_line(movl, GRc LABEL, grl(rs), "%eax");
+			print_line(call, LABEL, "PrintHex8");
 		    return 0;
 		}
 	}
 
-	if(strcmp(term0, "outputH") == 0){
-		if(sscanf(asm_line, asm_fmt_ig, tmp, &rs) == 2) {
-			OP(movl),G(rs),SC(%eax),NL;
-			OP(call),S(PrintHex8),NL;
+	if (inst_is("outputF")) {
+		if (myscan(if, &rs) == 1) {
+			print_line(movl, FRc LABEL, frl(rs), "%eax");
+			print_line(call, LABEL, "PrintHex8");
 		    return 0;
 		}
 	}
 
-	if(strcmp(term0, "outputF") == 0){
-		if(sscanf(asm_line, asm_fmt_if, tmp, &rs) == 2) {
-			OP(movl),F(rs),SC(%eax),NL;
-			OP(call),S(PrintHex8),NL;
-		    return 0;
-		}
-	}
-
-	if(strcmp(term0, "and") == 0){
-		if(sscanf(asm_line, asm_fmt_iggg, tmp, &rd, &rs,&rt) == 4) {
-
+	if (inst_is("and")) {
+		if (myscan(iggg, &rd, &rs, &rt) == 3) {
 	 		if ((rd == rs) && (is_xreg(rs) || is_xreg(rt))) {
-				OP(andl),G(rt),GC(rs),NL;
+				print_line(andl, GRc GR, grl(rt), grldst(rs));
 			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(andl),G(rt),SC(%edx),NL;
-				OP(movl),S(%edx),GC(rd),NL;
+				print_line(movl, GRc TMP, grl(rs));
+				print_line(andl, GRc TMP, grl(rt));
+				print_line(movl, TMPc GR, grldst(rd));
 			}
 
 		    return 0;
 		}
 	}
-	if(strcmp(term0, "or") == 0){
-		if(sscanf(asm_line, asm_fmt_iggg, tmp, &rd, &rs,&rt) == 4) {
 
+	if (inst_is("or")) {
+		if (myscan(iggg, &rd, &rs, &rt) == 3) {
 	 		if ((rd == rs) && (is_xreg(rs) || is_xreg(rt))) {
-				OP(orl),G(rt),GC(rs),NL;
+				print_line(orl, GRc GR, grl(rt), grldst(rs));
 			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(orl),G(rt),SC(%edx),NL;
-				OP(movl),S(%edx),GC(rd),NL;
+				print_line(movl, GRc TMP, grl(rs));
+				print_line(orl, GRc TMP, grl(rt));
+				print_line(movl, TMPc GR, grldst(rd));
 			}
 
 		    return 0;
 		}
 	}
-	if(strcmp(term0, "not") == 0){
-		if(sscanf(asm_line, asm_fmt_igg, tmp, &rd, &rs) == 3) {
+	if (inst_is("not")) {
+		if (myscan(igg, &rd, &rs) == 2) {
 
 			if (rd == rs) {
-				OP(notl),G(rd),NL;
+				print_line(notl, GR, grl(rd));
 	 		} else if (is_xreg(rs) || is_xreg(rd)) {
-				OP(movl),G(rs),GC(rd),NL;
-				OP(notl),G(rd),NL;
+				print_line(movl, GRc GR, grl(rs), grldst(rd));
+				print_line(notl, GR, grl(rd));
 			} else {
-				OP(movl),G(rs),SC(%eax),NL;
-				OP(notl),S(%eax),NL;
-				OP(movl),S(%eax),GC(rd),NL;
+				print_line(movl, GRc TMP, grl(rs));
+				print_line(notl, TMP);
+				print_line(movl, TMPc GR, grldst(rd));
 			}
 
 		    return 0;
 		}
 	}
-	if(strcmp(term0, "sll") == 0){
-		if(sscanf(asm_line, asm_fmt_iggg, tmp, &rd, &rs,&rt) == 4) {
-
+	if(inst_is("sll")) {
+		if (myscan(iggg, &rd, &rs, &rt) == 3) {
 	 		if ((rd == rs) && (is_xreg(rs) || is_xreg(rt))) {
-				OP(shll),G(rt),GC(rs),NL;
+				print_line(shll, GRc GR, grl(rt), grldst(rs));
 			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(shll),G(rt),SC(%edx),NL;
-				OP(movl),S(%edx),GC(rd),NL;
+				print_line(movl, GRc TMP, grl(rs));
+				print_line(shll, GRc TMP, grl(rt));
+				print_line(movl, TMPc GR, grldst(rd));
 			}
 
 		    return 0;
 		}
 	}
-	if(strcmp(term0, "srl") == 0){
-		if(sscanf(asm_line, asm_fmt_iggg, tmp, &rd, &rs,&rt) == 4) {
-
+	if(inst_is("srl")) {
+		if (myscan(iggg, &rd, &rs, &rt) == 3) {
 	 		if ((rd == rs) && (is_xreg(rs) || is_xreg(rt))) {
-				OP(shrl),G(rt),GC(rs),NL;
+				print_line(shrl, GRc GR, grl(rt), grldst(rs));
 			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(shrl),G(rt),SC(%edx),NL;
-				OP(movl),S(%edx),GC(rd),NL;
+				print_line(movl, GRc TMP, grl(rs));
+				print_line(shrl, GRc TMP, grl(rt));
+				print_line(movl, TMPc GR, grldst(rd));
 			}
+
 		    return 0;
 		}
 	}
-	if(strcmp(term0, "slli") == 0){
-		if(sscanf(asm_line, asm_fmt_iggi, tmp, &rt, &rs, &imm) == 4) {
+
+	if(inst_is("slli")) {
+		if (myscan(iggi, &rt, &rs, &imm) == 3) {
 
 	 		if ((rt == rs) && (is_xreg(rs) || is_xreg(rt))) {
-				OP(shll),IM(imm),GC(rt), NL;
+				print_line(shll, IMMc GR, imm, grldst(rt));
 			} else if (is_xreg(rs) || is_xreg(rt)) {
-				OP(movl),G(rs),GC(rt),NL;
-				OP(shll),IM(imm),GC(rt), NL;
+				print_line(movl, GRc GR, grl(rs), grldst(rt));
+				print_line(shll, IMMc GR, imm, grldst(rt));
 			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(shll),IM(imm),SC(%edx), NL;
-				OP(movl),S(%edx),GC(rt),NL;
+				print_line(movl, GRc TMP, grl(rs));
+				print_line(shll, IMMc TMP, imm);
+				print_line(movl, TMPc GR, grldst(rt));
 			}
 
 		    return 0;
 		}
 	}
-	if(strcmp(term0, "srli") == 0){
-		if(sscanf(asm_line, asm_fmt_iggi, tmp, &rt, &rs, &imm) == 4) {
+	if(inst_is("srli")) {
+		if (myscan(iggi, &rt, &rs, &imm) == 3) {
 
 	 		if ((rt == rs) && (is_xreg(rs) || is_xreg(rt))) {
-				OP(shrl),IM(imm),GC(rt), NL;
+				print_line(shrl, IMMc GR, imm, grldst(rt));
 			} else if (is_xreg(rs) || is_xreg(rt)) {
-				OP(movl),G(rs),GC(rt),NL;
-				OP(shrl),IM(imm),GC(rt), NL;
+				print_line(movl, GRc GR, grl(rs), grldst(rt));
+				print_line(shrl, IMMc GR, imm, grldst(rt));
 			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(shrl),IM(imm),SC(%edx), NL;
-				OP(movl),S(%edx),GC(rt),NL;
+				print_line(movl, GRc TMP, grl(rs));
+				print_line(shrl, IMMc TMP, imm);
+				print_line(movl, TMPc GR, grldst(rt));
 			}
+
 		    return 0;
 		}
 	}
-	if(strcmp(term0, "b") == 0){
-		if(sscanf(asm_line, asm_fmt_ig, tmp, &rs) == 2) {
+	if (inst_is("b")) {
+		if (myscan(ig, &rs) == 1) {
 			if (is_xreg(rs)) {
-				OP(jmp *),GQ(rs),NL;
+				print_line(jmp *, GR, grlq(rs));
 			} else {
-				OP(movl),G(rs),SC(%edx),NL;
-				OP(jmp *),S(%rdx),NL;
+				print_line(movl, GRc LABEL, grl(rs), "%edx");
+				print_line(jmp *, LABEL, "%rdx");
 			}
 		    return 0;
 		}
@@ -900,5 +877,33 @@ static char *gr_label(int register_index, int dst_flag, int quad_flag) {
 	}
 	return label[label_idx];
 }
+
+static char *fr_label(int register_index) {
+	static char label[3][16];
+	static int label_idx = 0;
+	label_idx = (label_idx+1)%3;
+	switch (register_index) {
+		case 0 : set_label("%%xmm0"); break;
+		case 1 : set_label("%%xmm1"); break;
+		case 2 : set_label("%%xmm2"); break;
+		case 12 : set_label("%%xmm3"); break;
+		case 8 : set_label("%%xmm4"); break;
+		case 18 : set_label("%%xmm5"); break;
+		case 3 : set_label("%%xmm6"); break;
+		case 22 : set_label("%%xmm7"); break;
+		case 31 : set_label("%%xmm8"); break;
+		case 4 : set_label("%%xmm9"); break;
+		case 9 : set_label("%%xmm10"); break;
+		case 5 : set_label("%%xmm11"); break;
+		case 16 : set_label("%%xmm12"); break;
+		case 7 : set_label("%%xmm13"); break;
+		case 6 : set_label("%%xmm14"); break;
+		default : set_label("(FR%d)", register_index); break;
+	}
+	return label[label_idx];
+}
+
+
 #undef set_label
+
 

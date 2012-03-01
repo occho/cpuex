@@ -15,6 +15,7 @@ static char heap_buf[LINE_MAX*COL_MAX];
 int convert_op(char *, char *);
 void set_heap_buf(char *orig);
 void *mygets(char *dst, char *src, int n);
+static void prefix(void);
 static void register_init(void);
 static void text_section(char *);
 static void data_section(void);
@@ -25,11 +26,20 @@ static void bss_section(void);
 void convert(char *orig_buf) {
 
 	set_heap_buf(orig_buf);
+
+	prefix();
 	myputs(".code64");
 	text_section(orig_buf);
 	data_section();
 	bss_section();
 
+}
+static void prefix(void) {
+myprint(
+"########################################################################\n\
+## GESO ---- ASM CONVERTER\n\
+## Author: Tomoyuki Saito(aocchoda@gmail.com)\n\
+########################################################################\n\n");
 }
 static void text_section(char *orig_buf) {
 	myputs(".section .text");
