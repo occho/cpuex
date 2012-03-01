@@ -18,12 +18,12 @@ ASM_TARGET = $(TEST_TARGET:%=$(COMPILER_DIR)/test/%.s)
 
 geso: geso.o convert.o asm_fmt.o convert_op.o
 geso.o: $(ASMH) convert.o
-convert.o: $(ASMH) asm_fmt.o 
+convert.o: $(ASMH) asm_fmt.o convert_op.o
 convert_op.o: $(ASMH)
 
-xrt: $(MIN_RT:%=%.s) geso  $(LIB_OBJ) $(HOME_DIR:%=%/Makefile.in)
+xrt: $(MIN_RT:%=%.s) geso  $(LIB_OBJ) $(HOME_DIR)/Makefile.in
 	./geso $(MIN_RT:%=%.s) $(XSIM_FLAGS) -o x86asm/min-rt.asm; \
-	$(AS)  -a=lst/xrt.lst x86asm/min-rt.asm -o obj/min-rt.o; \
+	$(AS) -a=lst/xrt.lst x86asm/min-rt.asm -o obj/min-rt.o; \
 	ld obj/min-rt.o $(LIB_OBJ) -o xrt;
 
 #./xrt < $$sld;

@@ -54,7 +54,7 @@ static void text_section(char *orig_buf) {
 				myprint("%s", asm_line);
 			} else {
 				if (count_flag) {
-					OP(incq), S((CNT)), NL;
+					print_inc_line();
 				}
 				if (convert_op(asm_line, term0) < 0) {
 					myerr("unknown operation. line %d\n", input_line_cnt);
