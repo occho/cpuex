@@ -53,6 +53,8 @@ int assemble(uint32_t *out_buf, char *asm_buf) {
 				register_label(asm_line, term0);
 			} else { 
 				encode_and_output(asm_line, term0);
+				//pad_nop();
+				//pad_nop();
 			}
 		} else {
 			// blank(empty line)
@@ -133,6 +135,9 @@ static inline void register_label(char *asm_line, char *term0) {
 
 static inline void output_data(uint32_t data) {
 	output_alias[output_cnt++] = data;
+}
+void pad_nop(void) {
+	encode_and_output("\tslli %g0, %g0, 0\n", "slli");
 }
 static inline void encode_and_output(char*asm_line, char*term0) {
 	uint32_t ir = encode_op(asm_line, term0);

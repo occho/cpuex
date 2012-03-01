@@ -26,5 +26,6 @@ extern void register_linst_abs(char*);
 extern void set_bin(char *buf, uint32_t num);
 extern int set_hex(char *buf, uint32_t num);
 
-void _mywrite(int fd, char *buf, int num);
+extern void _mywrite(int fd, char *buf, int num);
+extern void pad_nop(void);
 #endif

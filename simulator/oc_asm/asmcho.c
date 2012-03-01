@@ -18,7 +18,7 @@ static char *lst_file = (char*) "ika.lst";
 static char *sfile;
 
 static int sfd, dfd, lfd;
-static int lst_flag, be_quiet;
+static int lst_flag, be_quiet, padding_flag;
 static int output_line_min;
 static uint32_t binary_data[LINE_MAX];
 static char ex_mne_buf[LINE_MAX*COL_MAX];
@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 		output_file((char*)binary_data, size*4);
 	}
 	if (lst_flag>0) {
-		asm_listing(lfd, binary_data, ex_mne_buf); // reuse asm_buf
+		asm_listing(lfd, binary_data, ex_mne_buf);
 	}
 	exit(0);
 }
@@ -194,6 +194,7 @@ static void print_usage(char*name) {
 	print_option("-b $line_num\t: output binary string");
 	print_option("-x $line_num\t: output hexadecimal string");
 	print_option("-c $line_num\t: output coe format string");
+	print_option("-p\t: pad nop for pocore");
 	print_option("-h\t: print this usage information");
 	print_option("-m\t: output code after expanding mnemonic");
 	print_option("-q\t: don't print configure information");
@@ -203,7 +204,7 @@ static void print_usage(char*name) {
 
 static void conf_out_fmt(int argc, char** argv) {
 	int opt;
-	while ((opt = getopt(argc, argv, "lmqcbhxo:")) != -1) {
+	while ((opt = getopt(argc, argv, "lpmqcbhxo:")) != -1) {
 		switch (opt) {
 			case 'o' :
 				if (atoi(optarg) == 1) {
@@ -214,6 +215,9 @@ static void conf_out_fmt(int argc, char** argv) {
 					dst_flag = DST_FILE;
 					dfile = optarg;
 				}
+				break;
+			case 'p' :
+				padding_flag = 1;
 				break;
 			case 'q' :
 				be_quiet = 1;
@@ -301,6 +305,11 @@ static void print_conf(void) {
 			break;
 	}
 	print_val("output_line_min\t: %d", output_line_min);
+	if (padding_flag > 0) {
+		print_val("padding nop\t: on");
+	} else {
+		print_val("padding nop\t: off");
+	}
 	warning("\n######################################################################\n\n");
 }
 #undef print_val
