@@ -1,6 +1,6 @@
 /* This file is a part of Automated Testbench Generator.
    2011 H.Tomari. This is a public domain software. */
-#include "sim.h"
+#include "oc_sim.h"
 #include <unistd.h>
 #define dump(x) fprintf(stderr, "%s: ", #x); to_bin(x);
 

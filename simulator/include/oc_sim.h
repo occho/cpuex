@@ -2,6 +2,7 @@
 #ifndef _SIM_HEAD
 #define _SIM_HEAD
 #include "common.h"
+#include <stdio.h>
 #include <stdint.h>
 extern uint32_t prom[ROM_NUM];
 extern uint32_t ram[RAM_NUM];

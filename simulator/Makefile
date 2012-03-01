@@ -26,10 +26,7 @@ xrt:
 	@cd $(XSIM); make $(MAKE_OPTION) rt
 
 clean:
-	cd asm; make $(MAKE_OPTION) clean
 	cd oc_asm; make $(MAKE_OPTION) clean
-	cd sim; make $(MAKE_OPTION) clean
 	cd oc_sim; make $(MAKE_OPTION) clean
-	cd xsim; make $(MAKE_OPTION) clean
 	cd oc_xsim; make $(MAKE_OPTION) clean
 

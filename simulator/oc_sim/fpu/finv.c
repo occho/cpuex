@@ -1,4 +1,4 @@
-#include "sim.h"
+#include "oc_sim.h"
 #include <stdlib.h>
 
 #define SIGN(i) ((0x80000000&(i))>>31)
