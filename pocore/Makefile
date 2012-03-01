@@ -64,4 +64,5 @@ sim:
 	make -sC $(TMPL_DIR) sim
 
 clean:
+	make -sC $(TMPL_DIR) clean
 	rm -f *.s *.o *.vcd *.cf $(TB) *.fst

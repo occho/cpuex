@@ -9,7 +9,6 @@ Iter:
 	add		%g5, %g5, %g4
 	nop
 	nop
-	nop
 	add		%g3, %g5, %g3
 	jeq		%g5, %g6, End
 	nop

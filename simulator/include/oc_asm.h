@@ -28,4 +28,5 @@ extern int set_hex(char *buf, uint32_t num);
 
 extern void _mywrite(int fd, char *buf, int num);
 extern void pad_nop(void);
+extern int padding_flag;
 #endif

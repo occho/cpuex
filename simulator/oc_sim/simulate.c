@@ -119,6 +119,7 @@ static inline int exec_op(uint32_t ir) {
 			switch(funct) {
 				case OUTPUT_F:
 					putchar(_GRS&0xff);
+					fflush(stdout);
 					break;
 				case INPUT_F:
 					c = getchar();

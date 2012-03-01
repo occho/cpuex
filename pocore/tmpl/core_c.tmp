@@ -33,11 +33,9 @@ end component;
 component clk_delay is
 ${clk_delay.entity()}
 end component;
-
 component prom is
 ${prom.entity()}
 end component;
-
 component decode is
 ${decode.entity()}
 end component;
@@ -104,12 +102,12 @@ begin
 -- decode phase
 	dec_u	:	decode port map(CLK, prom_out, REG_01, LR_OUT, input_flag,
 					ir, FramePointer, LinkRegister);
-	regdec_rs:reg_dc port map(CLK, ${REGs()}, prom_out(25 downto 21), REG_S);
-	regdec_rt:reg_dc port map(CLK, ${REGs()}, prom_out(20 downto 16), REG_T);
-	regdec_rd:reg_dc port map(CLK, ${REGs()}, prom_out(15 downto 11), REG_D);
-	regdec_frs:reg_dc port map(CLK, ${FREGs()}, prom_out(25 downto 21), FREG_S);
-	regdec_frt:reg_dc port map(CLK, ${FREGs()}, prom_out(20 downto 16), FREG_T);
-	regdec_frd:reg_dc port map(CLK, ${FREGs()}, prom_out(15 downto 11), FREG_D);
+	regdec_rs:reg_dc port map(CLK2X, ${REGs()}, prom_out(25 downto 21), REG_S);
+	regdec_rt:reg_dc port map(CLK2X, ${REGs()}, prom_out(20 downto 16), REG_T);
+	regdec_rd:reg_dc port map(CLK2X, ${REGs()}, prom_out(15 downto 11), REG_D);
+	regdec_frs:reg_dc port map(CLK2X, ${FREGs()}, prom_out(25 downto 21), FREG_S);
+	regdec_frt:reg_dc port map(CLK2X, ${FREGs()}, prom_out(20 downto 16), FREG_T);
+	regdec_frd:reg_dc port map(CLK2X, ${FREGs()}, prom_out(15 downto 11), FREG_D);
 
 -- exec phase
 	exec_u	:	exec port map(CLK, CLK2X, RESET, ir, pc,
@@ -120,7 +118,6 @@ begin
 	process(CLK)
 	begin
 		if rising_edge(CLK) then
-
 			reg_cond_dly <= reg_cond;
 			n_reg_dly <= n_reg;
 			reg_in_dly <= reg_in;
@@ -134,7 +131,7 @@ begin
 							SRAM_ZA,SRAM_XWA,SRAM_ZD);
 	
 -- write back phase
-	regwb_u	:	reg_wb port map(CLK, RESET,
+	regwb_u	:	reg_wb port map(CLK2X, RESET,
 		 n_reg_dly, reg_in_dly, LR_IN, RAM_OUT, fr_flag_dly, reg_cond_dly,
 		 ${REGs()}, ${FREGs()}, LR_OUT);
 

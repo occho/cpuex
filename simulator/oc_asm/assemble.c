@@ -53,8 +53,9 @@ int assemble(uint32_t *out_buf, char *asm_buf) {
 				register_label(asm_line, term0);
 			} else { 
 				encode_and_output(asm_line, term0);
-				//pad_nop();
-				//pad_nop();
+				if (padding_flag) {
+					pad_nop();
+				}
 			}
 		} else {
 			// blank(empty line)
@@ -123,6 +124,9 @@ static inline void register_label(char *asm_line, char *term0) {
 			label.line = (output_cnt-1)*4;
 		} else {
 			label.line = output_cnt;
+			if (padding_flag) {
+				pad_nop();
+			}
 		}
 		if (hash_insert(label)<0) {
 			myerr("duplicate label @ register_label.hash_insert");

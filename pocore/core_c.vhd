@@ -54,7 +54,6 @@ component clk_delay is
 	);
 
 end component;
-
 component prom is
 
 	port (
@@ -63,7 +62,6 @@ component prom is
 		douta : out std_logic_vector(31 downto 0));
 
 end component;
-
 component decode is
 
 port (
@@ -358,37 +356,37 @@ begin
 -- decode phase
 	dec_u	:	decode port map(CLK, prom_out, REG_01, LR_OUT, input_flag,
 					ir, FramePointer, LinkRegister);
-	regdec_rs:reg_dc port map(CLK, 
+	regdec_rs:reg_dc port map(CLK2X, 
 		 REG_00, REG_01, REG_02, REG_03, REG_04, REG_05, REG_06, REG_07, 
 		 REG_08, REG_09, REG_10, REG_11, REG_12, REG_13, REG_14, REG_15, 
 		 REG_16, REG_17, REG_18, REG_19, REG_20, REG_21, REG_22, REG_23, 
 		 REG_24, REG_25, REG_26, REG_27, REG_28, REG_29, REG_30, REG_31
 , prom_out(25 downto 21), REG_S);
-	regdec_rt:reg_dc port map(CLK, 
+	regdec_rt:reg_dc port map(CLK2X, 
 		 REG_00, REG_01, REG_02, REG_03, REG_04, REG_05, REG_06, REG_07, 
 		 REG_08, REG_09, REG_10, REG_11, REG_12, REG_13, REG_14, REG_15, 
 		 REG_16, REG_17, REG_18, REG_19, REG_20, REG_21, REG_22, REG_23, 
 		 REG_24, REG_25, REG_26, REG_27, REG_28, REG_29, REG_30, REG_31
 , prom_out(20 downto 16), REG_T);
-	regdec_rd:reg_dc port map(CLK, 
+	regdec_rd:reg_dc port map(CLK2X, 
 		 REG_00, REG_01, REG_02, REG_03, REG_04, REG_05, REG_06, REG_07, 
 		 REG_08, REG_09, REG_10, REG_11, REG_12, REG_13, REG_14, REG_15, 
 		 REG_16, REG_17, REG_18, REG_19, REG_20, REG_21, REG_22, REG_23, 
 		 REG_24, REG_25, REG_26, REG_27, REG_28, REG_29, REG_30, REG_31
 , prom_out(15 downto 11), REG_D);
-	regdec_frs:reg_dc port map(CLK, 
+	regdec_frs:reg_dc port map(CLK2X, 
 		 FREG_00, FREG_01, FREG_02, FREG_03, FREG_04, FREG_05, FREG_06, FREG_07, 
 		 FREG_08, FREG_09, FREG_10, FREG_11, FREG_12, FREG_13, FREG_14, FREG_15, 
 		 FREG_16, FREG_17, FREG_18, FREG_19, FREG_20, FREG_21, FREG_22, FREG_23, 
 		 FREG_24, FREG_25, FREG_26, FREG_27, FREG_28, FREG_29, FREG_30, FREG_31
 , prom_out(25 downto 21), FREG_S);
-	regdec_frt:reg_dc port map(CLK, 
+	regdec_frt:reg_dc port map(CLK2X, 
 		 FREG_00, FREG_01, FREG_02, FREG_03, FREG_04, FREG_05, FREG_06, FREG_07, 
 		 FREG_08, FREG_09, FREG_10, FREG_11, FREG_12, FREG_13, FREG_14, FREG_15, 
 		 FREG_16, FREG_17, FREG_18, FREG_19, FREG_20, FREG_21, FREG_22, FREG_23, 
 		 FREG_24, FREG_25, FREG_26, FREG_27, FREG_28, FREG_29, FREG_30, FREG_31
 , prom_out(20 downto 16), FREG_T);
-	regdec_frd:reg_dc port map(CLK, 
+	regdec_frd:reg_dc port map(CLK2X, 
 		 FREG_00, FREG_01, FREG_02, FREG_03, FREG_04, FREG_05, FREG_06, FREG_07, 
 		 FREG_08, FREG_09, FREG_10, FREG_11, FREG_12, FREG_13, FREG_14, FREG_15, 
 		 FREG_16, FREG_17, FREG_18, FREG_19, FREG_20, FREG_21, FREG_22, FREG_23, 
@@ -404,7 +402,6 @@ begin
 	process(CLK)
 	begin
 		if rising_edge(CLK) then
-
 			reg_cond_dly <= reg_cond;
 			n_reg_dly <= n_reg;
 			reg_in_dly <= reg_in;
@@ -418,7 +415,7 @@ begin
 							SRAM_ZA,SRAM_XWA,SRAM_ZD);
 	
 -- write back phase
-	regwb_u	:	reg_wb port map(CLK, RESET,
+	regwb_u	:	reg_wb port map(CLK2X, RESET,
 		 n_reg_dly, reg_in_dly, LR_IN, RAM_OUT, fr_flag_dly, reg_cond_dly,
 		 
 		 REG_00, REG_01, REG_02, REG_03, REG_04, REG_05, REG_06, REG_07, 

@@ -17,8 +17,9 @@ static char *dfile = (char*) "ika.out";
 static char *lst_file = (char*) "ika.lst";
 static char *sfile;
 
+int padding_flag;
 static int sfd, dfd, lfd;
-static int lst_flag, be_quiet, padding_flag;
+static int lst_flag, be_quiet;
 static int output_line_min;
 static uint32_t binary_data[LINE_MAX];
 static char ex_mne_buf[LINE_MAX*COL_MAX];
