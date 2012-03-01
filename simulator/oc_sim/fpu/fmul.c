@@ -1,4 +1,4 @@
-#include "sim.h"
+#include "oc_sim.h"
 #include <stdio.h>
 
 #define dump(x) \
