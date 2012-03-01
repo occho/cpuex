@@ -3,138 +3,161 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <signal.h>
-#include "asm.h"
-#include "geso.h"
+#include "oc_geso.h"
 
+
+static int input_line_cnt;
+static int err_cnt;
+static char asm_line[COL_MAX];
+static char term0[COL_MAX];
+static char heap_buf[LINE_MAX*COL_MAX];
 
 int convert_op(char *, char *);
+void set_heap_buf(char *orig);
+void *mygets(char *dst, char *src, int n);
+static void register_init(void);
+static void text_section(char *);
+static void data_section(void);
+static void bss_section(void);
  
-int	convert(char *sfile) {
-	char	buf[LINE_MAX], opcode[256], heap_buf[(1<<20)];	
-	uint32_t	heap_size,cnt,input_line_cnt,i;
-	char *hbuf_tail,*tmp = NULL;
-	FILE	*fp;
-	int num;
+#define myerr(fmt, ...) \
+	warning("Error %d Line %d : "fmt"\n", ++err_cnt, input_line_cnt, ##__VA_ARGS__)
+void convert(char *orig_buf) {
 
-	heap_size = 0;
-	input_line_cnt = 1;
-	hbuf_tail = heap_buf;
+	set_heap_buf(orig_buf);
+	myputs(".code64");
+	text_section(orig_buf);
+	data_section();
+	bss_section();
 
-	fp = fopen(sfile, "r");
-	if(fp == NULL){
-		fprintf(stderr,"ファイルが開けませんでした。\n");
-		kill(0,SIGINT);
-	}
-
-	puts(".code64");
-	puts(".section .text");
-	puts(".global _start");
-
-
-	if (fgets(buf, LINE_MAX, fp) != NULL) {
-		sscanf(buf, ".init_heap_size %d", &heap_size);
-	}
-	input_line_cnt++;
-
-	cnt = 0;
-
-	while ((cnt < heap_size) && (fgets(buf, LINE_MAX, fp) != NULL)) {
-		if (sscanf(buf, "%s", opcode) == 1) {
-			// heap initialize
-			if (strchr(buf, ':')) {
-				tmp = strtok(buf,":");
-				hbuf_tail += sprintf(hbuf_tail, "%s:",tmp);
+}
+static void text_section(char *orig_buf) {
+	myputs(".section .text");
+	myputs(".global _start");
+	while (mygets(asm_line, orig_buf, COL_MAX) != NULL) {
+		if (set_term0(asm_line, term0) == 1) {
+			if (is_comment(asm_line, term0)) {
+				// blank(comment)
+			} else if (is_directive(asm_line, term0)) {
+			} else if (is_label(asm_line, term0)) {
+				myprint(".align 16\n");
+				myprint("%s", asm_line);
 			} else {
-				sscanf(buf, "%s 0x%x", tmp, &num);
-				hbuf_tail += sprintf(hbuf_tail, "	.long	0x%x\n", num);
-				cnt += 32;
-			}
-		}
-		input_line_cnt++;
-	}
-	hbuf_tail[0] = 0;
-
-	while(fgets(buf, LINE_MAX, fp) != NULL){
-		if(sscanf(buf, "%s", opcode) == 1){
- 	 	 	if(strchr(buf,':')) {
-				puts(".align 16");
-				printf("%s",buf);
- 	 	 		// ラベル行の場合
-			}else if(opcode[0] == '.'){
-			}else if(opcode[0] == '!'){
- 	 	 		// -- コメントなので何もしない
- 	 	 	}else{
- 	 	 		// 命令行
 				if (count_flag) {
 					OP(incq), S((CNT)), NL;
 				}
-				fflush(stdout);
- 	 	 		if (convert_op(opcode, buf) < 0) {
-					fprintf(stderr,"While Converting %s,\n", sfile);
-					fprintf(stderr,"Unknown operation Line %d\n", input_line_cnt);
-					fprintf(stderr,"%s", buf);
-					kill(0,SIGINT);
+				if (convert_op(asm_line, term0) < 0) {
+					myerr("unknown operation. line %d\n", input_line_cnt);
+					warning("%s\n", asm_line);
 				}
 			}
+		} else {
+			// blank(empty line)
 		}
-		fflush(stdout);
 		input_line_cnt++;
 	}
+	register_init();
 
-	fclose(fp);
+}
 
+static void register_init(void) {
+	myputs("\n_start:");
+	myputs("	xorq	%rbx, %rbx");
+	myputs("	xorq	%rcx, %rcx");
+	myputs("	xorq	%rsi, %rsi");
+	myputs("	xorq	%rdi, %rdi");
+	myputs("	xorq	%rbp, %rbp");
+	myputs("	xorq	%r8, %r8");
+	myputs("	xorq	%r9, %r9");
+	myputs("	xorq	%r10, %r10");
+	myputs("	xorq	%r11, %r11");
+	myputs("	xorq	%r12, %r12");
+	myputs("	xorq	%r13, %r13");
+	myputs("	xorq	%r14, %r14");
+	myputs("	xorq	%r15, %r15");
+	myputs("	movl	$BOTTOM, %r9d");
+	myputs("	movl	$TOP, %r12d");
+	myputs("	movl	$BOTTOM, %r10d");
+	myputs("	call	min_caml_start\n");
+}
 
-	// Register Init ////////////////////
-
-	puts("\n_start:");
-	puts("	xorq	%rbx, %rbx");
-	puts("	xorq	%rcx, %rcx");
-	puts("	xorq	%rsi, %rsi");
-	puts("	xorq	%rdi, %rdi");
-	puts("	xorq	%rbp, %rbp");
-	puts("	xorq	%r8, %r8");
-	puts("	xorq	%r9, %r9");
-	puts("	xorq	%r10, %r10");
-	puts("	xorq	%r11, %r11");
-	puts("	xorq	%r12, %r12");
-	puts("	xorq	%r13, %r13");
-	puts("	xorq	%r14, %r14");
-	puts("	xorq	%r15, %r15");
-	puts("	movl	$BOTTOM, %r9d");
-	//puts("	movl	$TOP, (GR2)");
-	puts("	movl	$TOP, %r12d");
-	puts("	movl	$BOTTOM, %r10d");
-	puts("	call	min_caml_start\n");
-
-	puts(".section .data");
-	puts(".align 16");
-	printf("%s\n", heap_buf);
+static void data_section(void) {
+	int i;
+	myputs(".section .data");
+	myputs(".align 16");
+	myprint("%s\n", heap_buf);
 	for (i = 0; i < 32; i++) {
 		if (!is_xreg(i)) {
-			printf("GR%d: .long 0\n", i);
+			myprint("GR%d: .long 0\n", i);
 		}
 	}
 	for (i = 0; i < 32; i++) {
 		if (!is_xmm(i)) {
-			printf("FR%d: .long 0\n", i);
+			myprint("FR%d: .long 0\n", i);
 		}
 	}
-	puts("TMP: .long 0");
-	puts("CNT: .quad 0");
-	printf("FNEG: .quad 0x%d\n", 1<<31);
-	puts(".section .bss");
-	puts(".lcomm TOP, 0");
-	printf(".lcomm RAM, %u\n", (unsigned)1<<25);
-	puts(".lcomm BOTTOM, 64");
+	myputs("TMP: .long 0");
+	myputs("CNT: .quad 0");
+	myprint("FNEG: .quad 0x%d\n", 1<<31);
+
+}
+
+static void bss_section(void) {
+	myputs(".section .bss");
+	myputs(".lcomm TOP, 0");
+	myprint(".lcomm RAM, %u\n", 1U<<25);
+	myputs(".lcomm BOTTOM, 64");
+}
 
 
 
 	
 
-	return 0;
-
+void *mygets(char *dst, char *src, int n) {
+	static char *src_cache = NULL;
+	static char *src_ptr = NULL;
+	char *ret;
+	if (src_cache != src) {
+		src_cache = src;
+		src_ptr = src;
+	}
+	if (src_cache == NULL || src_ptr == NULL) { return NULL; }
+	ret = (char*)memccpy(dst, src_ptr, '\n', n);
+	if (ret == NULL) { 
+	    src_ptr = src;
+	    return NULL; 
+	}
+	*ret = '\0';
+	src_ptr += (int) (ret - dst);
+	return dst;
 }
+
+void set_heap_buf(char*orig) {
+	int heap_size, num;
+	char *ptr=NULL,
+		 *hbuf_tail=heap_buf;
+	
+	if (mygets(asm_line, orig, COL_MAX) != NULL) {
+		sscanf(asm_line, ".init_heap_size %d", &heap_size);
+	} else {
+		myerr("init heap @ convert_heap");
+	}
+	input_line_cnt++;
+	while ((input_line_cnt-1)*32/2 < heap_size) {
+		if (mygets(asm_line, orig, COL_MAX) != NULL) {
+			if (strchr(asm_line, ':') != NULL) {
+				ptr = strtok(asm_line,":");
+				hbuf_tail += sprintf(hbuf_tail, "%s:", ptr);
+			} else {
+				sscanf(asm_line, "%s 0x%x", term0, &num);
+				hbuf_tail += sprintf(hbuf_tail, "	.long	0x%x\n", num);
+			}
+		} else {
+			myerr("init heap");
+		}
+		input_line_cnt++;
+	}
+	*hbuf_tail = '\0';
+}
+#undef myprint
+

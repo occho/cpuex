@@ -6,15 +6,18 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "geso.h"
+#include "oc_geso.h"
 
 enum dst_t { DST_FILE, DST_STDOUT, DST_STDERR, };
 static enum dst_t dst_flag = DST_FILE;
-static char *sfile;
-static int sfd, dfd;
-static char *dfile = (char*) "geso.out";
 
-int convert(char*);
+static char *sfile;
+static char *dfile = (char*) "geso.out";
+static int sfd;
+FILE *dfp;
+static char orig_buf[LINE_MAX*COL_MAX];
+
+void convert(char*);
 int count_flag;
 int mathlib_flag;
 
@@ -25,12 +28,15 @@ static void close_files(void);
 static void print_conf(void);
 
 int main(int argc, char **argv) {
+	int size;
 	configure(argc, argv);
 	open_files();
 	print_conf();
-	//convert(argv[i]);
+	size = read(sfd,  orig_buf, LINE_MAX*COL_MAX);
+	if (size<0) { exit(1); }
+	convert(orig_buf);
 
-	return 0;
+	exit(0);
 }
 
 #define print_option(fmt, ...) \
@@ -95,17 +101,17 @@ static void open_files(void) {
 	}
 	switch (dst_flag) {
 		case DST_STDOUT :
-			dfd = 1;
+			dfp = stdout;
 			break;
 		case DST_STDERR :
-			dfd = 2;
+			dfp = stderr;
 			break;
 		case DST_FILE :
 		default :
-			dfd = open(dfile, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
-			if (dfd < 0) {
-				warning("dfile @ open_files: %s\n", dfile);
-				perror("open");
+			dfp = fopen(dfile, "w");
+			if (dfp == NULL) {
+				warning("dfile @ fopen_files: %s\n", dfile);
+				perror("fopen");
 				exit(1);
 			}
 			break;
@@ -115,7 +121,7 @@ static void open_files(void) {
 static void close_files(void) {
 	close(sfd); 
 	if (dst_flag == DST_FILE) {
-		close(dfd);
+		fclose(dfp);
 	}
 }
 #define print_val(fmt, ...) \

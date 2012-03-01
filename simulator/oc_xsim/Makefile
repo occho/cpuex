@@ -1,7 +1,8 @@
-ASMH = common.h asm.h geso.h
+ASMH = common.h asm_fmt.h oc_geso.h
 TARGET = geso
 HOME_DIR = ../
 include $(HOME_DIR)/Makefile.in
+CC = gcc
 CACHE = ../../cache
 
 CFLAGS += -I $(HOME_DIR)/include/
@@ -15,13 +16,13 @@ AS = as
 LIB_OBJ = inc/lib.o inc/math.o
 ASM_TARGET = $(TEST_TARGET:%=$(COMPILER_DIR)/test/%.s)
 
-geso: geso.o convert.o convert_op.o 
+geso: geso.o convert.o asm_fmt.o convert_op.o
 geso.o: $(ASMH) convert.o
-convert.o: $(ASMH) convert_op.o
+convert.o: $(ASMH) asm_fmt.o 
 convert_op.o: $(ASMH)
 
 xrt: $(MIN_RT:%=%.s) geso  $(LIB_OBJ) $(HOME_DIR:%=%/Makefile.in)
-	./geso $(XSIM_FLAGS) $(MIN_RT:%=%.s) > x86asm/min-rt.asm; \
+	./geso $(MIN_RT:%=%.s) $(XSIM_FLAGS) -o x86asm/min-rt.asm; \
 	$(AS)  -a=lst/xrt.lst x86asm/min-rt.asm -o obj/min-rt.o; \
 	ld obj/min-rt.o $(LIB_OBJ) -o xrt;
 
@@ -46,7 +47,7 @@ $(TEST:%=bin/%.x): geso $(ASM_TARGET) $(LIB_OBJ) $(HOME_DIR:%=%/Makefile.in)
 		lst='lst/'$$name'.lst'; \
 		obj='obj/'$$name'.o'; \
 		bin='bin/'$$name'.x'; \
-		./geso $(XSIM_FLAGS) $$target > $$x86asm;	\
+		./geso $$target $(XSIM_FLAGS) -o $$x86asm;	\
 		$(AS) -a=$$lst $$x86asm -o $$obj;	\
 		ld $$obj $(LIB_OBJ) -o $$bin; \
 	done 
