@@ -55,6 +55,7 @@ int assemble(uint32_t *out_buf, char *asm_buf) {
 				encode_and_output(asm_line, term0);
 				if (padding_flag) {
 					pad_nop();
+					pad_nop();
 				}
 			}
 		} else {

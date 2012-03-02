@@ -217,7 +217,7 @@ min_caml_read_int:
 	return
 
 min_caml_read_float:
-	call read_int
+	call min_caml_read_int
 	sti %g3, %g1, 0
 	fldi %f0, %g1, 0
 	return
@@ -269,7 +269,7 @@ min_caml_start:
 	subi	%g2, %g31, 24
 	call	min_caml_create_array
 	ldi	%g2, %g31, 28
-	addi	%g4, %g0, 10
+	addi	%g4, %g0, 6
 	call	fib.306
 	mov	%g8, %g3
 	call	print_int.304

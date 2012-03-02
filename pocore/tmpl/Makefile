@@ -2,7 +2,7 @@ RENDER = mako-render
 OCORE_DIR = ..
 ISE_SPACE = ../../ise_space
 VSIM_SPACE = ../../vsim_space
-ASM = ./asmcho_prom10
+ASM = ./asmcho
 SIM = ./simcho
 
 OCORE_MODS = reg_dc top u232c io_dev core_c clk_gen clk_delay \
@@ -12,7 +12,8 @@ ISE_MODS = ise_top u232c io_dev core_c clk_gen clk_delay \
 			decode reg_dc exec mem_acc reg_wb
 
 TARGET = $(OCORE_MODS:%=%.vhd) $(ISE_MODS:%=%.vhd)
-SIM_TARGET = ./test
+COMPILER_DIR = ../../compiler
+SIM_TARGET = $(COMPILER_DIR)/test/float
 
 .SUFFIXES: .s
 .SUFFIXES: .vhd .tmp
@@ -26,12 +27,12 @@ SIM_TARGET = ./test
 all: $(TARGET)
 
 ocore: .ocore.stamp
-.ocore.stamp: $(OCORE_MODS:%=%.vhd)
+.ocore.stamp: $(OCORE_MODS:%=%.vhd) test
 	cp $? $(OCORE_DIR)/
 	touch .ocore.stamp
 
 ise: .ise.stamp
-.ise.stamp: $(ISE_MODS:%=%.vhd) $(SIM_TARGET).coe
+.ise.stamp: $(ISE_MODS:%=%.vhd) test.coe
 	cp $? $(ISE_SPACE)/
 	touch .ise.stamp
 
@@ -63,21 +64,21 @@ sram.vhd: sram.tmp $(BASE)
 testbench.vhd: testbench.tmp top.tmp sram.tmp $(BASE)
 
 .PHONY: asm
-asm : $(SIM_TARGET).coe $(SIM_TARGET)
+asm : test.coe test
 
-$(SIM_TARGET).coe: $(SIM_TARGET).s
-	$(ASM) -coe $<
+LINE_MIN = 2048
+test.coe: $(SIM_TARGET).s
+	$(ASM) $< -c -o test.coe
 	mv $(SIM_TARGET) $(SIM_TARGET).coe
-	$(ASM) -h $<
+	$(ASM) $< -x 2048 -l
 
-$(SIM_TARGET): $(SIM_TARGET).s
-	$(ASM) -h $<
+test: $(SIM_TARGET).s
+	$(ASM) $< -x 2048 -o test -l -p
 
 sim: $(SIM_TARGET)
-	$(ASM) $<.s
-	$(SIM) $(SIM_TARGET)
-	rm $<
+	$(ASM) $<.s -l
+	$(SIM) ika.out -l
 
 .PHONY: clean
 clean:
-	$(RM) *.vhd $(SIM_TARGET) $(SIM_TARGET).coe *.lst asmlog
+	$(RM) *.vhd $(SIM_TARGET) $(SIM_TARGET).coe *.lst asmlog *.out test

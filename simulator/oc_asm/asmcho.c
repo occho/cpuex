@@ -99,15 +99,20 @@ static void output_file(char*buf, int size) {
 			}
 			break;
 		case OFMT_STR_HEX :
-			linebuf[0] = linebuf[9] = '"';
-			linebuf[10] = ',';
-			linebuf[11] = '\n';
+			linebuf[0]='x';
+			linebuf[1] = linebuf[10] = '"';
+			linebuf[11] = ',';
+			linebuf[12] = '\n';
 			for (i=0; i<size/4; i++) {
-				set_hex(linebuf+1, buf32[i]);
-				mywrite(linebuf, 12);
+				set_hex(linebuf+2, buf32[i]);
+				if (i == size/4 -1) {
+					mywrite(linebuf, 11);
+				} else {
+					mywrite(linebuf, 13);
+				}
 			}
 			for (i=i; i<output_line_min; i++) {
-				mywrite("\"00000000\",\n", 12);
+				mywrite(",\nx\"00000000\"", 13);
 			}
 			break;
 		case OFMT_COE :

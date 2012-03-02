@@ -58,7 +58,7 @@ component prom is
 
 	port (
 		clka : in std_logic;
-		addra : in std_logic_vector(9 downto 0);
+		addra : in std_logic_vector(10 downto 0);
 		douta : out std_logic_vector(31 downto 0));
 
 end component;
@@ -123,7 +123,7 @@ component exec is
 	port
 	(
 	CLK_EX	:	in	std_logic;	-- clk
-	CLK2X	:	in	std_logic;	-- clk
+	CLK_TABLE	:	in	std_logic;	-- clk
 	RESET	:	in	std_logic;	-- reset
 	IR		:   in	std_logic_vector(31 downto 0);	-- instruction register
 	PC_IN	:	in	std_logic_vector(31 downto 0);	-- current pc
@@ -135,9 +135,9 @@ component exec is
 	FREG_D	:	in	std_logic_vector(31 downto 0) :=(others=>'0');	-- value of rd <== new
 	FP_OUT	:	in	std_logic_vector(19 downto 0);	-- current frame pinter
 	LR_OUT	:	in	std_logic_vector(31 downto 0);	-- current link register
-
 	LR_IN	:	out	std_logic_vector(31 downto 0);	-- next link register
 	PC_OUT	:	out	std_logic_vector(31 downto 0);	-- next pc
+
 	N_REG	:	out std_logic_vector(4 downto 0);	-- register index
 	REG_IN	:	out	std_logic_vector(31 downto 0);	-- value writing to reg
 	FR_FLAG :	out std_logic; -- <== new
@@ -351,7 +351,7 @@ begin
 	end process;
 	
 -- fetch phase
-	prom_u	:	prom port map(CLK2X, pc(9 downto 0), prom_out);
+	prom_u	:	prom port map(CLK2X, pc(10 downto 0), prom_out);
 
 -- decode phase
 	dec_u	:	decode port map(CLK, prom_out, REG_01, LR_OUT, input_flag,

@@ -13,7 +13,7 @@ entity exec is
 	port
 	(
 	CLK_EX	:	in	std_logic;	-- clk
-	CLK2X	:	in	std_logic;	-- clk
+	CLK_TABLE	:	in	std_logic;	-- clk
 	RESET	:	in	std_logic;	-- reset
 	IR		:   in	std_logic_vector(31 downto 0);	-- instruction register
 	PC_IN	:	in	std_logic_vector(31 downto 0);	-- current pc
@@ -25,9 +25,9 @@ entity exec is
 	FREG_D	:	in	std_logic_vector(31 downto 0) :=(others=>'0');	-- value of rd <== new
 	FP_OUT	:	in	std_logic_vector(19 downto 0);	-- current frame pinter
 	LR_OUT	:	in	std_logic_vector(31 downto 0);	-- current link register
-
 	LR_IN	:	out	std_logic_vector(31 downto 0);	-- next link register
 	PC_OUT	:	out	std_logic_vector(31 downto 0);	-- next pc
+
 	N_REG	:	out std_logic_vector(4 downto 0);	-- register index
 	REG_IN	:	out	std_logic_vector(31 downto 0);	-- value writing to reg
 	FR_FLAG :	out std_logic; -- <== new
@@ -98,13 +98,13 @@ architecture RTL of exec is
 	signal inverted : std_logic_vector(31 downto 0) := (others=>'0');
 
 begin
-	--freg_t_bar <= (not FREG_T(31))&FREG_T(30 downto 0);
-	--fadd_u : myfadd port map (CLK2X, FREG_S, FREG_T, fout_add);
-	--fsub_u : myfadd port map (CLK2X, FREG_S, freg_t_bar, fout_sub);
-	--fmul_u : myfmul port map (CLK2X, FREG_S, FREG_T, fout_mul);
-	--fsqrt_u : myfsqrt port map (CLK2X, FREG_S, fout_sqrt);
-	--finv_u : myfinv port map (CLK2X, FREG_T, inverted);
-	--fdiv_u : myfmul port map (CLK2X, FREG_S, inverted, fout_div);
+	freg_t_bar <= (not FREG_T(31))&FREG_T(30 downto 0);
+	fadd_u : myfadd port map (CLK_TABLE, FREG_S, FREG_T, fout_add);
+	fsub_u : myfadd port map (CLK_TABLE, FREG_S, freg_t_bar, fout_sub);
+	fmul_u : myfmul port map (CLK_TABLE, FREG_S, FREG_T, fout_mul);
+	fsqrt_u : myfsqrt port map (CLK_TABLE, FREG_S, fout_sqrt);
+	finv_u : myfinv port map (CLK_TABLE, FREG_T, inverted);
+	fdiv_u : myfmul port map (CLK_TABLE, FREG_S, inverted, fout_div);
 
 	op_code <= IR(31 downto 26);
 	op_data <= IR(25 downto 0);
@@ -124,7 +124,6 @@ begin
 		variable v20 : std_logic_vector(19 downto 0);
 		variable v_mul : std_logic_vector(63 downto 0);
 		variable slide_num : integer range 0 to 65535;
-		variable v_ppc_in : std_logic_vector(31 downto 0);
 	begin
 		if (RESET = '1') then 
 			PC_OUT <= (others=>'0');
@@ -443,8 +442,7 @@ begin
 						RAM_WEN <= '0';	
 						RAM_ADDR <= x"00000";
 						if (REG_S = REG_T) then
-							v_ppc_in := PC_IN - 1;
-							PC_OUT <= signed(v_ppc_in) + signed(ex_imm);
+							PC_OUT <= signed(PC_IN) + signed(ex_imm);
 						else
 							PC_OUT <= PC_IN + 1;
 						end if;
@@ -455,8 +453,7 @@ begin
 						RAM_WEN <= '0';	
 						RAM_ADDR <= x"00000";
 						if (REG_S /= REG_T) then
-							v_ppc_in := PC_IN - 1;
-							PC_OUT <= signed(v_ppc_in) + signed(ex_imm);
+							PC_OUT <= signed(PC_IN) + signed(ex_imm);
 						else
 							PC_OUT <= PC_IN + 1;
 						end if;
@@ -466,8 +463,7 @@ begin
 						RAM_WEN <= '0';	
 						RAM_ADDR <= x"00000";
 						if (signed(REG_S) < signed(REG_T)) then
-							v_ppc_in := PC_IN - 1;
-							PC_OUT <= signed(v_ppc_in) + signed(ex_imm);
+							PC_OUT <= signed(PC_IN) + signed(ex_imm);
 						else
 							PC_OUT <= PC_IN + 1;
 						end if;
@@ -530,11 +526,12 @@ begin
 						PC_OUT <= PC_IN + 1;	
 					when others =>	
 						REG_COND <= "0000";
-						RAM_WEN <= '0';	
+						RAM_WEN <= '1'; 
 						FR_FLAG <= '0';
-						PC_OUT <= PC_IN;
-						RAM_ADDR <= x"00000";
+						RAM_ADDR <= x"80000";
+						RAM_IN <= x"00000065";
 						debug_count <= x"ffffffff";
+						PC_OUT <= PC_IN;
 				end case;	
 			end if;
 		end if;	
