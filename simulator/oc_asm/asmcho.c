@@ -10,6 +10,8 @@ enum out_fmt_t { OFMT_BIN, OFMT_STR_BIN, OFMT_STR_HEX, OFMT_COE, OFMT_EX_MNE };
 static enum out_fmt_t output_type = OFMT_BIN;
 enum dst_t { DST_FILE, DST_STDOUT, DST_STDERR, };
 static enum dst_t dst_flag = DST_FILE;
+enum arch_t { ARCH_OCORE, ARCH_POCORE };
+enum arch_t arch_type = ARCH_OCORE;
 
 FILE *err_fp;
 
@@ -17,7 +19,6 @@ static char *dfile = (char*) "ika.out";
 static char *lst_file = (char*) "ika.lst";
 static char *sfile;
 
-int padding_flag;
 static int sfd, dfd, lfd;
 static int lst_flag, be_quiet;
 static int output_line_min;
@@ -223,7 +224,7 @@ static void conf_out_fmt(int argc, char** argv) {
 				}
 				break;
 			case 'p' :
-				padding_flag = 1;
+				arch_type = ARCH_POCORE;
 				break;
 			case 'q' :
 				be_quiet = 1;
@@ -306,16 +307,25 @@ static void print_conf(void) {
 			print_val("output_type\t: assembly after expand mnemonic");
 			break;
 		default :
-			print_val("conf_out_fmt: unexpected output_type");
+			print_val("print_conf: unexpected output_type");
 			exit(1);
 			break;
 	}
 	print_val("output_line_min\t: %d", output_line_min);
-	if (padding_flag > 0) {
-		print_val("padding nop\t: on");
-	} else {
-		print_val("padding nop\t: off");
+	switch (arch_type) {
+		case ARCH_OCORE :
+			print_val("architecture\t: ocore");
+			break;
+		case ARCH_POCORE :
+			print_val("architecture\t: pocore");
+			break;
+		default :
+			print_val("print_conf: unexpected arch_type");
+			break;
 	}
 	warning("\n######################################################################\n\n");
 }
 #undef print_val
+int arch_is_pocore(void) {
+	return arch_type == ARCH_POCORE;
+}

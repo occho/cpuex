@@ -14,7 +14,7 @@ RM_TARGET = ./bin/*.x ./obj/*.o ./x86asm/*.asm ./lst/*.lst xrt
 AS = as
 
 LIB_OBJ = inc/lib.o inc/math.o
-ASM_TARGET = $(TEST_TARGET:%=$(COMPILER_DIR)/test/%.s)
+ASM_TARGET = $(TEST_TARGET:%=$(TEST_PROGRAM_DIR)/%.s)
 
 geso: geso.o convert.o asm_fmt.o convert_op.o
 geso.o: $(ASMH) convert.o
@@ -42,7 +42,7 @@ rt: xrt
 TEST = $(TEST_TARGET)
 $(TEST:%=bin/%.x): geso $(ASM_TARGET) $(LIB_OBJ) $(HOME_DIR:%=%/Makefile.in)
 	for name in $(TEST) ; do \
-		target=$(COMPILER_DIR)'/test/'$$name'.s'; \
+		target=$(TEST_PROGRAM_DIR)/$$name'.s'; \
 		x86asm='x86asm/'$$name'.asm'; \
 		lst='lst/'$$name'.lst'; \
 		obj='obj/'$$name'.o'; \

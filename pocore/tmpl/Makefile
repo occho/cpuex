@@ -13,7 +13,7 @@ ISE_MODS = ise_top u232c io_dev core_c clk_gen clk_delay \
 
 TARGET = $(OCORE_MODS:%=%.vhd) $(ISE_MODS:%=%.vhd)
 COMPILER_DIR = ../../compiler
-SIM_TARGET = $(COMPILER_DIR)/test/float
+SIM_TARGET = $(COMPILER_DIR)/test/fib
 
 .SUFFIXES: .s
 .SUFFIXES: .vhd .tmp

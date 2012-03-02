@@ -10,7 +10,7 @@ LD = gcc
 CFLAGS += -I ../include/
 vpath %.h ../include/
 
-ASM_TARGET = $(TEST_TARGET:%=$(COMPILER_DIR)/test/%)
+ASM_TARGET = $(TEST_TARGET:%=$(TEST_PROGRAM_DIR)/%)
 asm:
 	$(ASM) $(ASM_TARGET).s $(ASM_FLAGS) -o $(ASM_TARGET)
 rt:

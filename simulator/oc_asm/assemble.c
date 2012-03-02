@@ -19,6 +19,7 @@ static inline void register_linst_setl(char *);
 static void _register_linst(char *lname, enum linst_access_t acc);
 static void exec_directive(char*, char*);
 static void resolve_label(void);
+static void pad_nop(int, const char*);
 
 static int input_line_cnt;
 static int output_cnt;
@@ -38,9 +39,9 @@ static uint32_t *output_alias;
 	} while(0) 
 
 
+static char asm_line[COL_MAX];
+static char term0[COL_MAX];
 int assemble(uint32_t *out_buf, char *asm_buf) {
-	char asm_line[COL_MAX];
-	char term0[COL_MAX];
 	output_alias = out_buf;
 
 	while (mygets(asm_line, asm_buf, COL_MAX) != NULL) {
@@ -53,9 +54,8 @@ int assemble(uint32_t *out_buf, char *asm_buf) {
 				register_label(asm_line, term0);
 			} else { 
 				encode_and_output(asm_line, term0);
-				if (padding_flag) {
-					pad_nop();
-					pad_nop();
+				if (arch_is_pocore()) {
+					pad_nop(2, "every instruction");
 				}
 			}
 		} else {
@@ -63,9 +63,7 @@ int assemble(uint32_t *out_buf, char *asm_buf) {
 		}
 		input_line_cnt++;
 	}
-
 	resolve_label();
-
 	return output_cnt;
 }
 
@@ -125,8 +123,9 @@ static inline void register_label(char *asm_line, char *term0) {
 			label.line = (output_cnt-1)*4;
 		} else {
 			label.line = output_cnt;
-			if (padding_flag) {
-				pad_nop();
+			if (arch_is_pocore()) {
+			// jump target
+				pad_nop(1, "function label");
 			}
 		}
 		if (hash_insert(label)<0) {
@@ -141,8 +140,12 @@ static inline void register_label(char *asm_line, char *term0) {
 static inline void output_data(uint32_t data) {
 	output_alias[output_cnt++] = data;
 }
-void pad_nop(void) {
-	encode_and_output("\tslli %g0, %g0, 0\n", "slli");
+void pad_nop(int n, const char *message) {
+	int i;
+	myerr("padding %d nop : %s", n, message);
+	for (i=0; i<n; i++) {
+		encode_and_output("\tslli %g0, %g0, 0\n", "slli");
+	}
 }
 static inline void encode_and_output(char*asm_line, char*term0) {
 	uint32_t ir = encode_op(asm_line, term0);

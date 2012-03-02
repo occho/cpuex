@@ -45,212 +45,220 @@ static inline uint32_t fmt_i(uint8_t opcode, uint8_t rs, uint8_t rt, uint16_t im
 static inline uint32_t fmt_j(uint8_t opcode, uint32_t target) {
 	return set_opcode() | set_target();
 }
+
 uint32_t encode_op(char *asm_line, char *inst)
 {
+	static uint32_t ret = 0xffffffff;
 	
 // Special Instructions
 	if (inst_is("add")) {
 		if (myscan(iggg, &rd, &rs, &rt) == 3) {
 
-			return fmt_sp(rs,rt,rd,ADD_F);
+			ret = fmt_sp(rs,rt,rd,ADD_F);
 		}
 	}
 	if (inst_is("sub")) {
 		if (myscan(iggg, &rd, &rs, &rt) == 3) {
-			return fmt_sp(rs,rt,rd,SUB_F);
+			ret = fmt_sp(rs,rt,rd,SUB_F);
 		}
 	}
 	if (inst_is("mul")) {
 		if (myscan(iggg, &rd, &rs, &rt) == 3) {
-			return fmt_sp(rs,rt,rd,MUL_F);
+			ret = fmt_sp(rs,rt,rd,MUL_F);
 		}
 	}
 	if (inst_is("b")) {
 		if (myscan(ig, &rs) == 1)
-		    return fmt_sp(rs,0,0,B_F);
+		    ret = fmt_sp(rs,0,0,B_F);
 	}
 
 	if (inst_is("callR")) {
 		if (myscan(ig, &rs) == 1) {
-			return fmt_sp(rs,0,0,CALLR_F);
+			ret = fmt_sp(rs,0,0,CALLR_F);
 		}
 	}
 	if (inst_is("fst")) {
 		if (myscan(ifgg, &rd, &rs, &rt) == 3) {
-			return fmt_sp(rs,rt,rd,FST_F);
+			ret = fmt_sp(rs,rt,rd,FST_F);
 		}
 	}
 	if (inst_is("fld")) {
 		if (myscan(ifgg, &rd, &rs, &rt) == 3) {
-			return fmt_sp(rs,rt,rd,FLD_F);
+			ret = fmt_sp(rs,rt,rd,FLD_F);
 		}
 	}
 	if (inst_is("halt")) {
-		    return fmt_sp(0,0,0,HALT_F);
+		    ret = fmt_sp(0,0,0,HALT_F);
 	}
 // I/O Instructions
 	if (inst_is("input")) {
 		if (myscan(ig, &rd) == 1) {
-			return fmt_io(0,rd,INPUT_F);
+			ret = fmt_io(0,rd,INPUT_F);
 		}
 	}
 	if (inst_is("output")) {
 		if (myscan(ig, &rs) == 1) {
-			return fmt_io(rs,0,OUTPUT_F);
+			ret = fmt_io(rs,0,OUTPUT_F);
 		}
 	}
 // Floating-Point Instructions
 	if (inst_is("fadd")) {
 		if (myscan(ifff, &rd, &rs, &rt) == 3) {
-			return fmt_fpi(rs,rt,rd,FADD_F);
+			ret = fmt_fpi(rs,rt,rd,FADD_F);
 		}
 	}
 	if (inst_is("fsub")) {
 		if (myscan(ifff, &rd, &rs, &rt) == 3) {
-			return fmt_fpi(rs,rt,rd,FSUB_F);
+			ret = fmt_fpi(rs,rt,rd,FSUB_F);
 		}
 	}
 	if (inst_is("fmul")) {
 		if (myscan(ifff, &rd, &rs, &rt) == 3) {
-			return fmt_fpi(rs,rt,rd,FMUL_F);
+			ret = fmt_fpi(rs,rt,rd,FMUL_F);
 		}
 	}
 	if (inst_is("fdiv")) {
 		if (myscan(ifff, &rd, &rs, &rt) == 3) {
-			return fmt_fpi(rs,rt,rd,FDIV_F);
+			ret = fmt_fpi(rs,rt,rd,FDIV_F);
 		}
 	}
 	if (inst_is("fsqrt")) {
 		if (myscan(iff, &rd, &rs) == 2) {
-			return fmt_fpi(rs,0,rd,FSQRT_F);
+			ret = fmt_fpi(rs,0,rd,FSQRT_F);
 		}
 	}
 	if (inst_is("fabs")) {
 		if (myscan(iff, &rd, &rs) == 2) {
-			return fmt_fpi(rs,0,rd,FABS_F);
+			ret = fmt_fpi(rs,0,rd,FABS_F);
 		}
 	}
 	if (inst_is("fmov")) {
 		if (myscan(iff, &rd, &rs) == 2) {
-			return fmt_fpi(rs,0,rd,FMOV_F);
+			ret = fmt_fpi(rs,0,rd,FMOV_F);
 		}
 	}
 	if (inst_is("fneg")) {
 		if (myscan(iff, &rd, &rs) == 2) {
-			return fmt_fpi(rs,0,rd,FNEG_F);
+			ret = fmt_fpi(rs,0,rd,FNEG_F);
 		}
 	}
 
 // Other Instructions
 	if (inst_is("mvlo")) {
 		if (myscan(igi, &rs, &imm) == 2) {
-		    return fmt_i(MVLO,rs,0,imm);
+		    ret = fmt_i(MVLO,rs,0,imm);
 		}
 	}
 	if (inst_is("mvhi")) {
 		if (myscan(igi, &rs, &imm) == 2) {
-			return fmt_i(MVHI,rs,0,imm);
+			ret = fmt_i(MVHI,rs,0,imm);
 		}
 	}
 	if (inst_is("addi")) {
 		if (myscan(iggi, &rt, &rs, &imm) == 3) {
-		    return fmt_i(ADDI,rs,rt,imm);
+		    ret = fmt_i(ADDI,rs,rt,imm);
 		}
 	}
 	if (inst_is("subi")) {
 		if (myscan(iggi, &rt, &rs, &imm) == 3) {
-		    return fmt_i(SUBI,rs,rt,imm);
+		    ret = fmt_i(SUBI,rs,rt,imm);
 		}
 	}
 	if (inst_is("muli")) {
 		if (myscan(iggi, &rt, &rs, &imm) == 3) {
-		    return fmt_i(MULI,rs,rt,imm);
+		    ret = fmt_i(MULI,rs,rt,imm);
 		}
 	}
 	if (inst_is("slli")) {
 		if (myscan(iggi, &rt, &rs, &imm) == 3) {
-		    return fmt_i(SLLI,rs,rt,imm);
+		    ret = fmt_i(SLLI,rs,rt,imm);
 		}
 	}
 	if (inst_is("srli")) {
 		if (myscan(iggi, &rt, &rs, &imm) == 3) {
-		    return fmt_i(SRLI,rs,rt,imm);
+		    ret = fmt_i(SRLI,rs,rt,imm);
 		}
 	}
 	if (inst_is("fjeq")) {
 		if (myscan(iffl, &rs, &rt, label_name) == 3) {
 			register_linst_rel(label_name);
-			return fmt_i(FJEQ,rs,rt,0);
+			ret = fmt_i(FJEQ,rs,rt,0);
+
 		}
 	}
 	if (inst_is("fjlt")) {
 		if (myscan(iffl, &rs, &rt, label_name) == 3) {
 			register_linst_rel(label_name);
-			return fmt_i(FJLT,rs,rt,0);
+			ret = fmt_i(FJLT,rs,rt,0);
+
 		}
 	}
 	if (inst_is("call")) {
 		if (myscan(il, label_name) == 1) {
 			register_linst_abs(label_name);
-		    return fmt_j(CALL,0);
+		    ret = fmt_j(CALL,0);
 		}
 	}
 	if (inst_is("return")) {
-		    return fmt_j(RETURN,0);
+		    ret = fmt_j(RETURN,0);
 	}
 	if (inst_is("jeq")) {
 		if (myscan(iggl, &rs, &rt, label_name) == 3) {
 			register_linst_rel(label_name);
-			return fmt_i(JEQ,rs,rt,0);
+
+			ret = fmt_i(JEQ,rs,rt,0);
 		}
 	}
 	if (inst_is("jne")) {
 		if (myscan(iggl, &rs, &rt, label_name) == 3) {
 			register_linst_rel(label_name);
-			return fmt_i(JNE,rs,rt,0);
+			ret = fmt_i(JNE,rs,rt,0);
+
 		}
 	}
 	if (inst_is("jlt")) {
 		if (myscan(iggl, &rs, &rt, label_name) == 3) {
 			register_linst_rel(label_name);
-			return fmt_i(JLT,rs,rt,0);
+			ret = fmt_i(JLT,rs,rt,0);
+
 		}
 	}
 	if (inst_is("jmp")) {
 		if (myscan(il, label_name) == 1) {
 			register_linst_abs(label_name);
-			return fmt_j(JMP,0);
+			ret = fmt_j(JMP,0);
+
 		}
 	}
 	if (inst_is("st")) {
 		if (myscan(iggg, &rd, &rs, &rt) == 3) {
-			return _fmt_r(ST,rs,rt,rd,0,0);
+			ret = _fmt_r(ST,rs,rt,rd,0,0);
 		}
 	}
 	if (inst_is("ld")) {
 		if (myscan(iggg, &rd, &rs, &rt) == 3) {
-			return _fmt_r(LD,rs,rt,rd,0,0);
+			ret = _fmt_r(LD,rs,rt,rd,0,0);
 		}
 	}
 	if (inst_is("sti")) {
 		if (myscan(iggi, &rt, &rs, &imm) == 3) {
-			return fmt_i(STI,rs,rt,imm);
+			ret = fmt_i(STI,rs,rt,imm);
 		}
 	}
 	if (inst_is("fsti")) {
 		if (myscan(ifgi, &rt, &rs, &imm) == 3) {
-			return fmt_i(FSTI,rs,rt,imm);
+			ret = fmt_i(FSTI,rs,rt,imm);
 		}
 	}
 	if (inst_is("ldi")) {
 		if (myscan(iggi, &rt, &rs, &imm) == 3) {
-			return fmt_i(LDI,rs,rt,imm);
+			ret = fmt_i(LDI,rs,rt,imm);
 		}
 	}
 	if (inst_is("fldi")) {
 		if (myscan(ifgi, &rt, &rs, &imm) == 3) {
-			return fmt_i(FLDI,rs,rt,imm);
+			ret = fmt_i(FLDI,rs,rt,imm);
 		}
 	}
-	return 0xffffffff;
+	return ret;
 }

@@ -8,7 +8,7 @@ CC = gcc
 CACHE = ../../cache
 CFLAGS += -I ../include/ $(SIM_MACRO)
 vpath %.h ../include/
-SIM_TARGET = $(TEST_TARGET:%=$(COMPILER_DIR)/test/%)
+SIM_TARGET = $(TEST_TARGET:%=$(TEST_PROGRAM_DIR)/%)
 
 FPU_DIR = ./fpu
 FPU_ = finv fsqrt fadd fmul
