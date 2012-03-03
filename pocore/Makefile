@@ -14,7 +14,7 @@ VSIM_SPACE = ../vsim_space
 TMPL_DIR = ./tmpl
 
 
-TIME = 20us
+TIME = 50us
 .SUFFIXES: .vhd .vcd .tmp
 .PHONY: default wave vcd reload
 

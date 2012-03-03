@@ -12,7 +12,7 @@ vpath %.h ../include/
 
 ASM_TARGET = $(TEST_TARGET:%=$(TEST_PROGRAM_DIR)/%)
 asm:
-	$(ASM) $(ASM_TARGET).s $(ASM_FLAGS) -o $(ASM_TARGET)
+	$(ASM) $(ASM_TARGET).s -o $(ASM_TARGET) $(ASM_FLAGS) 
 rt:
 	$(ASM) $(MIN_RT).s -o $(MIN_RT)
 

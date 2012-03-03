@@ -30,6 +30,14 @@ int expand_mnemonic(char *ex_mne_buf, char *asm_buf) {
 			if (inst_is("nop")) {
 				print_expanded(iggi, "slli", 0,0,0);
 			} else
+			if (inst_is("halt")) {
+				if (arch_is_pocore()) {
+					print_original("__HALT_LABEL__:\n");
+					print_expanded(il, "jmp", "__HALT_LABEL__");
+				} else {
+					print_original("%s", asm_line);
+				}
+			} else
 			if (inst_is("mov")) {
 				if (myscan(igg, &rd, &rs) == 2) {
 					print_expanded(iggi, "addi", rd, rs, 0);

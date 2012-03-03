@@ -12,8 +12,8 @@ ISE_MODS = ise_top u232c io_dev core_c clk_gen clk_delay \
 			decode reg_dc exec mem_acc reg_wb
 
 TARGET = $(OCORE_MODS:%=%.vhd) $(ISE_MODS:%=%.vhd)
-COMPILER_DIR = ../../compiler
-SIM_TARGET = $(COMPILER_DIR)/test/fib
+TEST_DIR = ../../test_programs
+SIM_TARGET = $(TEST_DIR)/fib
 
 .SUFFIXES: .s
 .SUFFIXES: .vhd .tmp
@@ -75,9 +75,9 @@ test.coe: $(SIM_TARGET).s
 test: $(SIM_TARGET).s
 	$(ASM) $< -x 2048 -o test -l -p
 
-sim: $(SIM_TARGET)
-	$(ASM) $<.s -l
-	$(SIM) ika.out -l
+sim:
+	$(ASM) $(SIM_TARGET).s -l -p
+	$(SIM) ika.out
 
 .PHONY: clean
 clean:
