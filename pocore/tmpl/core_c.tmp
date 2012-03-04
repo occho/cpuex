@@ -111,7 +111,7 @@ begin
 
 -- exec phase
 	exec_u	:	exec port map(CLK, CLK2X, RESET, ir, pc,
-		 REG_S, REG_T, REG_D, FREG_S, FREG_T, FREG_D, FramePointer, LinkRegister,
+		 REG_S, REG_T, REG_D, FREG_S, FREG_T, FREG_D, FREG_00, FramePointer, LinkRegister,
 		 LR_IN, pc, n_reg, reg_in, fr_flag, RAM_ADDR, RAM_IN, reg_cond,
 		 ram_wen);
 

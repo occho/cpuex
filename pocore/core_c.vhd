@@ -133,6 +133,7 @@ component exec is
 	FREG_S	:	in	std_logic_vector(31 downto 0) :=(others=>'0');	-- value of rs <== new
 	FREG_T	:	in	std_logic_vector(31 downto 0) :=(others=>'0');	-- value of rt <== new
 	FREG_D	:	in	std_logic_vector(31 downto 0) :=(others=>'0');	-- value of rd <== new
+	FKEY	:	in	std_logic_vector(31 downto 0) :=(others=>'0');
 	FP_OUT	:	in	std_logic_vector(19 downto 0);	-- current frame pinter
 	LR_OUT	:	in	std_logic_vector(31 downto 0);	-- current link register
 	LR_IN	:	out	std_logic_vector(31 downto 0);	-- next link register
@@ -395,7 +396,7 @@ begin
 
 -- exec phase
 	exec_u	:	exec port map(CLK, CLK2X, RESET, ir, pc,
-		 REG_S, REG_T, REG_D, FREG_S, FREG_T, FREG_D, FramePointer, LinkRegister,
+		 REG_S, REG_T, REG_D, FREG_S, FREG_T, FREG_D, FREG_00, FramePointer, LinkRegister,
 		 LR_IN, pc, n_reg, reg_in, fr_flag, RAM_ADDR, RAM_IN, reg_cond,
 		 ram_wen);
 

@@ -19,12 +19,12 @@ MIN_RT = $(TEST_PROGRAM_DIR)/min-rt
 # Set Vars below
 ########################################################################
 #TEST_TARGET = $(subst $(TEST_PROGRAM_DIR)/,, $(subst .s,, $(shell ls $(HOME_DIR)/../compiler/test/*.s)))
-TEST_TARGET = inprod
+TEST_TARGET = fib
 #RT_TARGET = $(basename $(shell ls $(CACHE)/sldbin))
 RT_TARGET = contest
 include $(HOME_DIR)/Makefile.sim
-ASM_FLAGS = -p
-#SIM_FLAGS = -l ./a.log
+ASM_FLAGS = -l
+SIM_FLAGS = #-l ./a.log
 #XSIM_FLAGS = -c -m
 EOG =   (eog $$ppm &);
 ########################################################################

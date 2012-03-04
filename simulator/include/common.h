@@ -77,6 +77,8 @@
 #define FJLT 072
 #define MVLO 007
 #define MVHI 017
+#define FMVLO 006
+#define FMVHI 016
 #define FLDI 061
 #define FSTI 071
 #define LINK 075

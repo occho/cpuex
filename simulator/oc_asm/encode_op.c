@@ -154,6 +154,16 @@ uint32_t encode_op(char *asm_line, char *inst)
 			ret = fmt_i(MVHI,rs,0,imm);
 		}
 	}
+	if (inst_is("fmvlo")) {
+		if (myscan(ifi, &rs, &imm) == 2) {
+		    ret = fmt_i(FMVLO,rs,0,imm);
+		}
+	}
+	if (inst_is("fmvhi")) {
+		if (myscan(ifi, &rs, &imm) == 2) {
+			ret = fmt_i(FMVHI,rs,0,imm);
+		}
+	}
 	if (inst_is("addi")) {
 		if (myscan(iggi, &rt, &rs, &imm) == 3) {
 		    ret = fmt_i(ADDI,rs,rt,imm);

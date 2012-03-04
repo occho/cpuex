@@ -23,6 +23,7 @@ entity exec is
 	FREG_S	:	in	std_logic_vector(31 downto 0) :=(others=>'0');	-- value of rs <== new
 	FREG_T	:	in	std_logic_vector(31 downto 0) :=(others=>'0');	-- value of rt <== new
 	FREG_D	:	in	std_logic_vector(31 downto 0) :=(others=>'0');	-- value of rd <== new
+	FKEY	:	in	std_logic_vector(31 downto 0) :=(others=>'0');
 	FP_OUT	:	in	std_logic_vector(19 downto 0);	-- current frame pinter
 	LR_OUT	:	in	std_logic_vector(31 downto 0);	-- current link register
 	LR_IN	:	out	std_logic_vector(31 downto 0);	-- next link register
@@ -102,8 +103,8 @@ begin
 	fadd_u : myfadd port map (CLK_TABLE, FREG_S, FREG_T, fout_add);
 	fsub_u : myfadd port map (CLK_TABLE, FREG_S, freg_t_bar, fout_sub);
 	fmul_u : myfmul port map (CLK_TABLE, FREG_S, FREG_T, fout_mul);
-	fsqrt_u : myfsqrt port map (CLK_TABLE, FREG_S, fout_sqrt);
-	finv_u : myfinv port map (CLK_TABLE, FREG_T, inverted);
+	fsqrt_u : myfsqrt port map (CLK_TABLE, FKEY, fout_sqrt);
+	finv_u : myfinv port map (CLK_TABLE, FKEY, inverted);
 	fdiv_u : myfmul port map (CLK_TABLE, FREG_S, inverted, fout_div);
 
 	op_code <= IR(31 downto 26);

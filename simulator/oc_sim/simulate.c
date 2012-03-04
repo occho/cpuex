@@ -50,6 +50,7 @@ int simulate(void) {
 		pc++;
 		if (!(cnt % 100000000)) { 
 			warning("."); 
+
 		}
 	} while (exec_op(ir)==0);
 	return 0;
@@ -209,6 +210,10 @@ static inline int exec_op(uint32_t ir) {
 			_GRT = _GRS >> _IMM;
 			break;
 		case JMP:
+			if (pc-1 == get_target(ir)) {
+				return 1;
+			}
+			
 			pc = get_target(ir);
 			break;
 		case FJLT:
@@ -274,6 +279,12 @@ static inline int exec_op(uint32_t ir) {
 			break;
 		case MVLO: 
 			_GRS = (_GRS & (0xffff<<16)) | (_IMM & 0xffff);
+			break;
+		case FMVHI: 
+			_FRS = ((uint32_t) _IMM << 16) | (_FRS & 0xffff);
+			break;
+		case FMVLO: 
+			_FRS = (_FRS & (0xffff<<16)) | (_IMM & 0xffff);
 			break;
 		default	:	break;
 	}

@@ -19,6 +19,7 @@ entity exec is
 	FREG_S	:	in	${oc.reg_t()} :=(others=>'0');	-- value of rs <== new
 	FREG_T	:	in	${oc.reg_t()} :=(others=>'0');	-- value of rt <== new
 	FREG_D	:	in	${oc.reg_t()} :=(others=>'0');	-- value of rd <== new
+	FKEY	:	in	${oc.reg_t()} :=(others=>'0');
 	FP_OUT	:	in	${oc.ram_addr_t()};	-- current frame pinter
 	LR_OUT	:	in	${oc.pc_t()};	-- current link register
 	LR_IN	:	out	${oc.pc_t()};	-- next link register
@@ -88,8 +89,8 @@ begin
 	fadd_u : myfadd port map (CLK_TABLE, FREG_S, FREG_T, fout_add);
 	fsub_u : myfadd port map (CLK_TABLE, FREG_S, freg_t_bar, fout_sub);
 	fmul_u : myfmul port map (CLK_TABLE, FREG_S, FREG_T, fout_mul);
-	fsqrt_u : myfsqrt port map (CLK_TABLE, FREG_S, fout_sqrt);
-	finv_u : myfinv port map (CLK_TABLE, FREG_T, inverted);
+	fsqrt_u : myfsqrt port map (CLK_TABLE, FKEY, fout_sqrt);
+	finv_u : myfinv port map (CLK_TABLE, FKEY, inverted);
 	fdiv_u : myfmul port map (CLK_TABLE, FREG_S, inverted, fout_div);
 
 	op_code <= IR(31 downto 26);

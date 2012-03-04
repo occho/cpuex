@@ -4,12 +4,14 @@
 
 #define	COL_MAX 512
 #define LINE_MAX (32*1024)
+#define asm_fmt_i "%s"
 #define asm_fmt_if "%s %%f%d"
 #define asm_fmt_ig "%s %%g%d"
 #define asm_fmt_ii "%s %d"
 #define asm_fmt_il "%s %s"
 #define asm_fmt_iff "%s %%f%d, %%f%d"
 #define asm_fmt_ifg "%s %%f%d, %%g%d"
+#define asm_fmt_ifi "%s %%f%d, %d"
 #define asm_fmt_igf "%s %%g%d, %%f%d"
 #define asm_fmt_igg "%s %%g%d, %%g%d"
 #define asm_fmt_igi "%s %%g%d, %d"
