@@ -44,12 +44,6 @@ begin
 
 
 	mul_ret <= grad13 * in13;
-	process (CLK_TABLE)
-	begin
-		if falling_edge(CLK_TABLE) then
-			--mul_ret <= grad13 * in13;
-		end if;
-	end process;
 
 	FO <= (others=>'0') when F=0 else
 		  const23 - ("000000000"&mul_ret(25 downto 12));

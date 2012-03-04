@@ -9,7 +9,7 @@ entity reg_dc is
 
 
 	port (
-		CLK_DC	:	in	std_logic;
+		CLK	:	in	std_logic;
 		REG_00	:	in	std_logic_vector(31 downto 0);
 		REG_01	:	in	std_logic_vector(31 downto 0);
 		REG_02	:	in	std_logic_vector(31 downto 0);
@@ -50,9 +50,9 @@ end reg_dc;
 architecture RTL of reg_dc is
 
 begin
-	process(CLK_DC)
+	process(CLK)
 	begin
-		if rising_edge(clk_dc) then
+		if rising_edge(CLK) then
 		case N_REG_IN is
 			when "00000" => REG_OUT <= REG_00;
 			when "00001" => REG_OUT <= REG_01;

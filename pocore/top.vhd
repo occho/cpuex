@@ -108,6 +108,7 @@ begin
 		clk2x<='0';
 		wait for 1 ns;
 	end process;
+
 	clk_inv_gen : process
 	begin
 		clk_inv<='1';

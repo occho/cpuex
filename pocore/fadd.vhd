@@ -68,23 +68,9 @@ begin
 	loserF  <= F2 when E1>E2 else F1;
 
 
-	process (CLK_TABLE)
-	begin
-		if falling_edge(CLK_TABLE) then
-			if S1/=S2 then
-				if rshiftedF > winnerF then
-					raw_frac <= ('0'&rshiftedF) - ('0'&winnerF);
-				else 
-					raw_frac <= ('0'&winnerF) - ('0'&rshiftedF);
-				end if;
-			else
-				raw_frac <= ('0'&rshiftedF) + ('0'&winnerF);
-			end if;
-		end if;
-	end process;
-	--raw_frac <= ('0'&rshiftedF) - ('0'&winnerF) when S1/=S2 and (rshiftedF > winnerF) else 
-			    --('0'&winnerF) - ('0'&rshiftedF) when S1/=S2 and (rshiftedF <= winnerF) else 
-				--('0'&rshiftedF) + ('0'&winnerF);
+	raw_frac <= ('0'&rshiftedF) - ('0'&winnerF) when S1/=S2 and (rshiftedF > winnerF) else 
+			    ('0'&winnerF) - ('0'&rshiftedF) when S1/=S2 and (rshiftedF <= winnerF) else 
+				('0'&rshiftedF) + ('0'&winnerF);
 	
 	EO	<=	winnerE+1  when zero_count="00000" else
 			(others=>'0') when zero_count="11001" or (unsigned(winnerE)<=unsigned("000"&lsw)) else

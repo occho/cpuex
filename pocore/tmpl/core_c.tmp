@@ -1,7 +1,5 @@
 ## -*- coding: utf-8 -*-
 <%inherit file="skeleton.tmp"/>
-<%namespace name="clk_gen" file="clk_gen.tmp"/>
-<%namespace name="clk_delay" file="clk_delay.tmp"/>
 <%namespace name="prom" file="prom.tmp"/>
 <%namespace name="decode" file="decode.tmp"/>
 <%namespace name="reg_dc" file="reg_dc.tmp"/>
@@ -28,12 +26,6 @@ entity core_c is
 </%block>
 end core_c;
 architecture RTL of core_c is
-component clk_gen is
-${clk_gen.entity()}
-end component;
-component clk_delay is
-${clk_delay.entity()}
-end component;
 component prom is
 ${prom.entity()}
 end component;
@@ -52,8 +44,6 @@ end component;
 component mem_acc is
 ${mem_acc.entity()}
 end component;
-
-	signal clk_inv_tmp : std_logic;
 
 	signal	pc :	${oc.pc_t()};
 	signal	prom_out	:	${oc.ir_t()};
@@ -89,26 +79,18 @@ end component;
 
 begin			
 
--- clk(state machine)
-	process (CLK2X)
-	begin
-		if rising_edge(CLK2X) then
-			clk_inv_tmp <= clk;
-		end if;
-	end process;
-	
 -- fetch phase
 	prom_u	:	prom port map(CLK2X, pc(${oc.prom_msb()} downto 0), prom_out);
 
 -- decode phase
 	dec_u	:	decode port map(CLK, prom_out, REG_01, LR_OUT, input_flag,
 					ir, FramePointer, LinkRegister);
-	regdec_rs:reg_dc port map(CLK2X, ${REGs()}, prom_out(25 downto 21), REG_S);
-	regdec_rt:reg_dc port map(CLK2X, ${REGs()}, prom_out(20 downto 16), REG_T);
-	regdec_rd:reg_dc port map(CLK2X, ${REGs()}, prom_out(15 downto 11), REG_D);
-	regdec_frs:reg_dc port map(CLK2X, ${FREGs()}, prom_out(25 downto 21), FREG_S);
-	regdec_frt:reg_dc port map(CLK2X, ${FREGs()}, prom_out(20 downto 16), FREG_T);
-	regdec_frd:reg_dc port map(CLK2X, ${FREGs()}, prom_out(15 downto 11), FREG_D);
+	regdec_rs:reg_dc port map(CLK, ${REGs()}, prom_out(25 downto 21), REG_S);
+	regdec_rt:reg_dc port map(CLK, ${REGs()}, prom_out(20 downto 16), REG_T);
+	regdec_rd:reg_dc port map(CLK, ${REGs()}, prom_out(15 downto 11), REG_D);
+	regdec_frs:reg_dc port map(CLK, ${FREGs()}, prom_out(25 downto 21), FREG_S);
+	regdec_frt:reg_dc port map(CLK, ${FREGs()}, prom_out(20 downto 16), FREG_T);
+	regdec_frd:reg_dc port map(CLK, ${FREGs()}, prom_out(15 downto 11), FREG_D);
 
 -- exec phase
 	exec_u	:	exec port map(CLK, CLK2X, RESET, ir, pc,
@@ -127,7 +109,7 @@ begin
 	end process;
 
 -- memory access phase
-	memacc_u	: mem_acc port map (clk_inv_tmp, CLK, ram_wen, RAM_ADDR, RAM_IN,
+	memacc_u	: mem_acc port map (CLK_INV, CLK, ram_wen, RAM_ADDR, RAM_IN,
 							RAM_OUT, IO_IN, IO_WR, IO_RD, IO_OUT,
 							SRAM_ZA,SRAM_XWA,SRAM_ZD);
 	

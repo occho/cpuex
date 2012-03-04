@@ -5,10 +5,10 @@ VSIM_SPACE = ../../vsim_space
 ASM = ./asmcho
 SIM = ./simcho
 
-OCORE_MODS = reg_dc top u232c io_dev core_c clk_gen clk_delay \
+OCORE_MODS = reg_dc top u232c io_dev core_c \
 			 prom decode exec mem_acc sram reg_wb testbench
 			
-ISE_MODS = ise_top u232c io_dev core_c clk_gen clk_delay \
+ISE_MODS = ise_top u232c io_dev core_c \
 			decode reg_dc exec mem_acc reg_wb
 
 TARGET = $(OCORE_MODS:%=%.vhd) $(ISE_MODS:%=%.vhd)
@@ -41,11 +41,9 @@ vsim: $(OCORE_MODS:%=%.vhd)
 
 BASE = skeleton.tmp macro.tmp
 
-CORE_C = clk_gen clk_delay prom decode reg_dc exec reg_wb mem_acc
+CORE_C = prom decode reg_dc exec reg_wb mem_acc
 core_c.vhd: core_c.tmp $(CORE_C:%=%.tmp) $(BASE)
 
-clk_gen.vhd: clk_gen.tmp $(BASE)
-clk_dly.vhd: clk_dly.tmp $(BASE)
 decode.vhd: decode.tmp $(BASE)
 reg_dc.vhd: reg_dc.tmp $(BASE)
 exec.vhd: exec.tmp $(BASE)

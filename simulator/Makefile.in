@@ -23,7 +23,7 @@ TEST_TARGET = inprod
 #RT_TARGET = $(basename $(shell ls $(CACHE)/sldbin))
 RT_TARGET = contest
 include $(HOME_DIR)/Makefile.sim
-ASM_FLAGS = -l -p 
+ASM_FLAGS = -l 
 SIM_FLAGS = #-l ./a.log
 #XSIM_FLAGS = -c -m
 EOG =   (eog $$ppm &);

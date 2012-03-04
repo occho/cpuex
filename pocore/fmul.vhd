@@ -46,17 +46,9 @@ begin
 			raw_FO(24 downto 2) when raw_FO(25)='1' else
 			raw_FO(23 downto 1);
 
-	--HH <= F1H * F2H;
-	--HL <= F1H * F2L;
-	--LH <= F1L * F2H;
-	process (CLK_TABLE)
-	begin
-		if falling_edge(CLK_TABLE) then
-			HH <= F1H * F2H;
-			HL <= F1H * F2L;
-			LH <= F1L * F2H;
-		end if;
-	end process;
+	HH <= F1H * F2H;
+	HL <= F1H * F2L;
+	LH <= F1L * F2H;
 	raw_FO <= HH + (HL srl 11) + (LH srl 11);
 
 

@@ -1,10 +1,10 @@
 TB = testbench
 FPU = fadd fmul fsqrt finv lzc
 FPU_SIM = $(FPU) finv_table fsqrt_table
-OBJS = top.o clk_gen.o core_c.o decode.o reg_dc.o \
+OBJS = top.o core_c.o decode.o reg_dc.o \
 	std_logic_1164_additional.o \
 	exec.o reg_wb.o testbench.o mem_acc.o u232c.o \
-	io_dev.o prom.o fetch.o clk_delay.o sram.o\
+	io_dev.o prom.o fetch.o sram.o\
 	$(FPU_SIM:%=%.o)
 ISE_VHDL = $(FPU) std_logic_1164_additional 
 VSIM_VHDL = $(FPU_SIM) std_logic_1164_additional 

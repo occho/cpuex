@@ -8,7 +8,7 @@ use ieee.std_logic_unsigned.all;
 entity decode is
 
 port (
-	CLK_DC	:	in	std_logic;
+	CLK:	in	std_logic;
 	PROM_OUT	:	in std_logic_vector(31 downto 0);
 	FP_OUT	:	in std_logic_vector(31 downto 0);
 	LINK_OUT	:	in std_logic_vector(31 downto 0);
@@ -28,9 +28,9 @@ architecture RTL of decode is
 begin
 	opcode <= PROM_OUT(31 downto 26);
 	funct  <= PROM_OUT(5 downto 0);
-	process(CLK_DC)
+	process(CLK)
 	begin
-		if rising_edge(CLK_DC) then
+		if rising_edge(CLK) then
 			IR <= PROM_OUT;
 			FP <= FP_OUT(19 downto 0);
 			LR <= LINK_OUT;

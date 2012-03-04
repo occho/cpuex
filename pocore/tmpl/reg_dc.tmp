@@ -7,7 +7,7 @@ entity reg_dc is
 num_list = map ((lambda x : '%02d' % x), xrange(32))
 %>
 	port (
-		CLK_DC	:	in	std_logic;
+		CLK	:	in	std_logic;
 %for x in num_list:
 		REG_${x}	:	in	${oc.reg_t()};
 %endfor
@@ -19,9 +19,9 @@ end reg_dc;
 architecture RTL of reg_dc is
 
 begin
-	process(CLK_DC)
+	process(CLK)
 	begin
-		if rising_edge(clk_dc) then
+		if rising_edge(CLK) then
 		case N_REG_IN is
 			when "00000" => REG_OUT <= REG_00;
 			when "00001" => REG_OUT <= REG_01;

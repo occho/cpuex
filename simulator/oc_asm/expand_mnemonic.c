@@ -20,9 +20,12 @@ static inline int _inst_is(char *inst, const char *str) {
 #define myscan(fmt, ...) \
 	(sscanf(asm_line, asm_fmt_##fmt, tmpbuf, ##__VA_ARGS__) - 1)
 
+static void pocore_mnemonic(char *asm_line, char *term0);
+static void ocore_mnemonic(char *asm_line, char *term0);
+static char *dst_ptr;
+static int rd,rt,rs;
 int expand_mnemonic(char *ex_mne_buf, char *asm_buf) {
-	int rd,rs;
-	char* dst_ptr = ex_mne_buf;
+	dst_ptr = ex_mne_buf;
 
     while (mygets(asm_line, asm_buf, COL_MAX) != NULL) {
 
@@ -35,41 +38,9 @@ int expand_mnemonic(char *ex_mne_buf, char *asm_buf) {
 				print_original("%s", asm_line);
 			} else { 
 				if (arch_is_pocore()) {
-					pad_nop();
-				}
-				if (inst_is("nop")) {
-					print_expanded(iggi, "slli", 0,0,0);
-				} else
-				if (inst_is("halt")) {
-					if (arch_is_pocore()) {
-						print_original("__HALT_LABEL__:\n");
-						print_expanded(il, "jmp", "__HALT_LABEL__");
-						print_expanded(il, "jmp", "__HALT_LABEL__");
-						print_expanded(il, "jmp", "__HALT_LABEL__");
-					} else {
-						print_original("%s", asm_line);
-					}
-				} else
-				if (inst_is("mov")) {
-					if (myscan(igg, &rd, &rs) == 2) {
-						print_expanded(iggi, "addi", rd, rs, 0);
-					}
-				} else
-				if (inst_is("not")) {
-					if (myscan(igg, &rd, &rs) == 2) {
-						print_expanded(iggg, "nor", rd, rs, rs);
-					}
-				} else
-				if (inst_is("setL")) {
-					if (myscan(igl, &rd, tmpbuf) == 2) {
-						print_original(asm_fmt_igl, ".setL", rd, tmpbuf);
-						print_original("\n");
-					}
+					pocore_mnemonic(asm_line, term0);
 				} else {
-					print_original("%s", asm_line);
-				}
-				if (arch_is_pocore()) {
-					pad_nop();
+					ocore_mnemonic(asm_line, term0);
 				}
 			}
 
@@ -78,4 +49,79 @@ int expand_mnemonic(char *ex_mne_buf, char *asm_buf) {
     }
 	return (int) (dst_ptr - ex_mne_buf);
 }
+static void pocore_mnemonic(char *asm_line, char *term0) {
 
+	pad_nop();
+	if (inst_is("nop")) {
+		print_expanded(iggi, "slli", 0,0,0);
+	} else if (inst_is("halt")) {
+		print_original("__HALT_LABEL__:\n");
+		print_expanded(il, "jmp", "__HALT_LABEL__");
+		print_expanded(il, "jmp", "__HALT_LABEL__");
+		print_expanded(il, "jmp", "__HALT_LABEL__");
+	} else if (inst_is("mov")) {
+		if (myscan(igg, &rd, &rs) == 2) {
+			print_expanded(iggi, "addi", rd, rs, 0);
+		}
+	} else if (inst_is("not")) {
+		if (myscan(igg, &rd, &rs) == 2) {
+			print_expanded(iggg, "nor", rd, rs, rs);
+		}
+	} else if (inst_is("setL")) {
+		if (myscan(igl, &rd, tmpbuf) == 2) {
+			print_original(asm_fmt_igl, ".setL", rd, tmpbuf);
+			print_original("\n");
+		}
+	} else if (inst_is("fadd")) {
+		if (myscan(ifff, &rd, &rs, &rt) == 3) {
+			print_original("%s", asm_line);
+			pad_nop();
+		}
+	} else if (inst_is("fsub")) {
+		if (myscan(ifff, &rd, &rs, &rt) == 3) {
+			print_original("%s", asm_line);
+			pad_nop();
+		}
+	} else if (inst_is("fmul")) {
+		if (myscan(ifff, &rd, &rs, &rt) == 3) {
+			print_original("%s", asm_line);
+			pad_nop();
+		}
+	} else if (inst_is("fdiv")) {
+		if (myscan(ifff, &rd, &rs, &rt) == 3) {
+			print_original("%s", asm_line);
+			pad_nop();
+		}
+	} else if (inst_is("fsqrt")) {
+		if (myscan(iff, &rd, &rs) == 2) {
+			print_original("%s", asm_line);
+			pad_nop();
+		}
+	} else {
+		print_original("%s", asm_line);
+	}
+	pad_nop();
+
+}
+
+static void ocore_mnemonic(char *asm_line, char *term0) {
+	if (inst_is("nop")) {
+		print_expanded(iggi, "slli", 0,0,0);
+	} else if (inst_is("mov")) {
+		if (myscan(igg, &rd, &rs) == 2) {
+			print_expanded(iggi, "addi", rd, rs, 0);
+		}
+	} else if (inst_is("not")) {
+		if (myscan(igg, &rd, &rs) == 2) {
+			print_expanded(iggg, "nor", rd, rs, rs);
+		}
+	} else if (inst_is("setL")) {
+		if (myscan(igl, &rd, tmpbuf) == 2) {
+			print_original(asm_fmt_igl, ".setL", rd, tmpbuf);
+			print_original("\n");
+		}
+	} else {
+		print_original("%s", asm_line);
+	}
+
+}

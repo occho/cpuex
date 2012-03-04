@@ -4,7 +4,7 @@
 entity decode is
 <%block name="entity">
 port (
-	CLK_DC	:	in	std_logic;
+	CLK:	in	std_logic;
 	PROM_OUT	:	in ${oc.ir_t()};
 	FP_OUT	:	in ${oc.reg_t()};
 	LINK_OUT	:	in ${oc.pc_t()};
@@ -24,9 +24,9 @@ architecture RTL of decode is
 begin
 	opcode <= PROM_OUT(31 downto 26);
 	funct  <= PROM_OUT(5 downto 0);
-	process(CLK_DC)
+	process(CLK)
 	begin
-		if rising_edge(CLK_DC) then
+		if rising_edge(CLK) then
 			IR <= PROM_OUT;
 			FP <= FP_OUT(19 downto 0);
 			LR <= LINK_OUT;
