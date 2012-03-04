@@ -27,8 +27,8 @@
 
 ##<%def name="sim_prom_max()">32767</%def>
 ##<%def name="prom_msb()">13</%def>
-<%def name="sim_prom_max()">2047</%def>
-<%def name="prom_msb()">10</%def>
+<%def name="sim_prom_max()">4095</%def>
+<%def name="prom_msb()">11</%def>
 
 <%def name="io_bus_t()">${V32()}</%def>
 <%def name="reg_t()">${V32()}</%def>

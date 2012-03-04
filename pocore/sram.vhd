@@ -27,10 +27,6 @@ architecture RTL of sram is
 	signal pre_xwa : std_logic;
 	signal clka : std_logic;
 
-	signal debug : std_logic_vector(3 downto 0);
-	signal debug_data0 : std_logic_vector(31 downto 0);
-	signal debug_data1 : std_logic_vector(31 downto 0);
-
 begin
 	clka <= ZCLKMA(0);
 

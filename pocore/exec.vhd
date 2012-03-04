@@ -141,10 +141,14 @@ begin
 				RAM_WEN <= '0';
 				RAM_ADDR <= x"00000";
 				PC_OUT <= PC_IN + 1;
-			elsif heap_size > 0 then
+			elsif signed(heap_size) >= 0 then
 				heap_size<=heap_size-4;
 				RAM_IN<=IR;
-				v32 := PC_IN - 1;
+				if PC_IN=1 then -- makeshift
+					v32 := PC_IN - 1;
+				else
+					v32 := PC_IN - 2;
+				end if;
 				RAM_ADDR <= v32(17 downto 0)&"00";
 				REG_COND <= "0000";
 				RAM_WEN <= '1';	

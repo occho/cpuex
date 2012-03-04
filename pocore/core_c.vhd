@@ -58,7 +58,7 @@ component prom is
 
 	port (
 		clka : in std_logic;
-		addra : in std_logic_vector(10 downto 0);
+		addra : in std_logic_vector(11 downto 0);
 		douta : out std_logic_vector(31 downto 0));
 
 end component;
@@ -352,7 +352,7 @@ begin
 	end process;
 	
 -- fetch phase
-	prom_u	:	prom port map(CLK2X, pc(10 downto 0), prom_out);
+	prom_u	:	prom port map(CLK2X, pc(11 downto 0), prom_out);
 
 -- decode phase
 	dec_u	:	decode port map(CLK, prom_out, REG_01, LR_OUT, input_flag,

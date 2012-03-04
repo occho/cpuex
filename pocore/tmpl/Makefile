@@ -13,7 +13,7 @@ ISE_MODS = ise_top u232c io_dev core_c clk_gen clk_delay \
 
 TARGET = $(OCORE_MODS:%=%.vhd) $(ISE_MODS:%=%.vhd)
 TEST_DIR = ../../test_programs
-SIM_TARGET = $(TEST_DIR)/inprod
+SIM_TARGET = $(TEST_DIR)/matmul
 
 .SUFFIXES: .s
 .SUFFIXES: .vhd .tmp
@@ -66,14 +66,14 @@ testbench.vhd: testbench.tmp top.tmp sram.tmp $(BASE)
 .PHONY: asm
 asm : test.coe test
 
-LINE_MIN = 2048
+LINE_MIN = 4096
 test.coe: $(SIM_TARGET).s
 	$(ASM) $< -c -o test.coe
 	mv $(SIM_TARGET) $(SIM_TARGET).coe
-	$(ASM) $< -x 2048 -l
+	$(ASM) $< -x $(LINE_MIN) -l
 
 test: $(SIM_TARGET).s
-	$(ASM) $< -x 2048 -o test -l -p
+	$(ASM) $< -x $(LINE_MIN) -o test -l -p
 
 sim:
 	$(ASM) $(SIM_TARGET).s -l -p
@@ -81,4 +81,4 @@ sim:
 
 .PHONY: clean
 clean:
-	$(RM) *.vhd $(SIM_TARGET) $(SIM_TARGET).coe *.lst asmlog *.out test
+	$(RM) *.vhd $(SIM_TARGET) $(SIM_TARGET).coe *.lst asmlog *.out test *.log

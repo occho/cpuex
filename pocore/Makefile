@@ -14,7 +14,7 @@ VSIM_SPACE = ../vsim_space
 TMPL_DIR = ./tmpl
 
 
-TIME = 50us
+TIME = 100us
 .SUFFIXES: .vhd .vcd .tmp
 .PHONY: default wave vcd reload
 
@@ -65,4 +65,4 @@ sim:
 
 clean:
 	make -sC $(TMPL_DIR) clean
-	rm -f *.s *.o *.vcd *.cf $(TB) *.fst
+	rm -f *.s *.o *.vcd *.cf $(TB) *.fst test
