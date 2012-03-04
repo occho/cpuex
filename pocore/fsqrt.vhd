@@ -42,7 +42,13 @@ begin
 	const23 <= table_out(35 downto 13);
 	grad13  <= table_out(12 downto 0);
 	in14  	<= I(13 downto 0);
-	mul_ret <= ('0'&grad13) * in14;
+	--mul_ret <= ('0'&grad13) * in14;
+	process (CLK_TABLE)
+	begin
+		if falling_edge(CLK_TABLE) then
+			mul_ret <= ('0'&grad13) * in14;
+		end if;
+	end process;
 	FO <= const23 + ("00000000"&mul_ret(27 downto 13));
 	Etmp <= 127 + ('0'&E);
 	EO	<= Etmp(8 downto 1);

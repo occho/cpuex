@@ -32,8 +32,8 @@ ocore: .ocore.stamp
 	touch .ocore.stamp
 
 ise: .ise.stamp
-.ise.stamp: $(ISE_MODS:%=%.vhd) test.coe
-	cp $? $(ISE_SPACE)/
+.ise.stamp: $(ISE_MODS:%=%.vhd) coe
+	cp $? test.coe $(ISE_SPACE)/
 	touch .ise.stamp
 
 vsim: $(OCORE_MODS:%=%.vhd)
@@ -67,10 +67,9 @@ testbench.vhd: testbench.tmp top.tmp sram.tmp $(BASE)
 asm : test.coe test
 
 LINE_MIN = 4096
-test.coe: $(SIM_TARGET).s
-	$(ASM) $< -c -o test.coe
-	mv $(SIM_TARGET) $(SIM_TARGET).coe
-	$(ASM) $< -x $(LINE_MIN) -l
+.PHONY : coe
+coe: 
+	$(ASM) $(SIM_TARGET).s -c -o test.coe -p
 
 test: $(SIM_TARGET).s
 	$(ASM) $< -x $(LINE_MIN) -o test -l -p

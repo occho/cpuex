@@ -18,6 +18,7 @@ entity core_c is
 	(			
 	CLK	:	in	std_logic;
 	CLK2X	:	in	std_logic;
+	CLK_INV	:	in	std_logic;
 	RESET	:	in	std_logic;
 	NYET	:	in	std_logic;
 	IO_IN	:	in	std_logic_vector(31 downto 0);
@@ -249,7 +250,7 @@ component mem_acc is
 
 end component;
 
-	signal clk_inv : std_logic;
+	signal clk_inv_tmp : std_logic;
 
 	signal	pc :	std_logic_vector(31 downto 0);
 	signal	prom_out	:	std_logic_vector(31 downto 0);
@@ -347,7 +348,7 @@ begin
 	process (CLK2X)
 	begin
 		if rising_edge(CLK2X) then
-			clk_inv <= clk;
+			clk_inv_tmp <= clk;
 		end if;
 	end process;
 	
@@ -411,7 +412,7 @@ begin
 	end process;
 
 -- memory access phase
-	memacc_u	: mem_acc port map (clk_inv, CLK, ram_wen, RAM_ADDR, RAM_IN,
+	memacc_u	: mem_acc port map (clk_inv_tmp, CLK, ram_wen, RAM_ADDR, RAM_IN,
 							RAM_OUT, IO_IN, IO_WR, IO_RD, IO_OUT,
 							SRAM_ZA,SRAM_XWA,SRAM_ZD);
 	

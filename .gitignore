@@ -1,7 +1,8 @@
 
 *.o
 *.ln
-bit/
+bit1st/
+bit2nd/
 pdf/
 util/
 mycom/

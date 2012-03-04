@@ -18,14 +18,14 @@ TIME = 10us
 .SUFFIXES: .vhd .vcd .tmp
 .PHONY: default wave vcd reload
 
-default: ocore vcd
+default: ocore
 
 CACHE = ../cache
 CSERVER = $(CACHE)/cserver 
 PICT_NAME = contest
-SLD = $(CACHE)/sldbin/$(PICT_NAME).sldbin
-PPM = $(CACHE)/ppm/p6/$(PICT_NAME).ppm
-PPM_ANS = $(CACHE)/ppm_ans/p6/$(PICT_NAME).ppm
+SLD = $(CACHE)/sld/$(PICT_NAME).sld
+PPM = $(CACHE)/core_output/$(PICT_NAME).ppm
+PPM_ANS = $(CACHE)/ppm_p6_ans/$(PICT_NAME).ppm
 rt :
 	$(CSERVER) $(SLD) $(PPM) -b
 cmp :

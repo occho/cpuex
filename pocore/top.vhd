@@ -42,6 +42,7 @@ architecture board of top is
 	(			
 	CLK	:	in	std_logic;
 	CLK2X	:	in	std_logic;
+	CLK_INV	:	in	std_logic;
 	RESET	:	in	std_logic;
 	NYET	:	in	std_logic;
 	IO_IN	:	in	std_logic_vector(31 downto 0);
@@ -81,7 +82,7 @@ architecture board of top is
 	signal pipe   :std_logic;
 
 	signal clk,iclk : std_logic;
-	signal clk0,clk2,clk2x : std_logic;
+	signal clk0,clk2,clk2x,clk180,clk_inv: std_logic;
 
 begin
 	XE1		<='0';
@@ -99,7 +100,7 @@ begin
 
 
 	clk <= MCLK1;
-	clkgen: process
+	clk2x_gen: process
 	begin
 	---- initialize with '1' or '0'?
 		clk2x<='1';
@@ -107,11 +108,18 @@ begin
 		clk2x<='0';
 		wait for 1 ns;
 	end process;
+	clk_inv_gen : process
+	begin
+		clk_inv<='1';
+		wait for 2 ns;
+		clk_inv<='0';
+		wait for 2 ns;
+	end process;
 
 
 
 
-	cpunit : core_c port map(clk, clk2x, reset, nyet, cpu_in, 
+	cpunit : core_c port map(clk, clk2x, clk_inv, reset, nyet, cpu_in, 
 		cpu_wr, cpu_rd, cpu_out, ZA, XWA, ZD);
 	iounit : io_dev port map (clk, cpu_wr, cpu_rd, cpu_out, cpu_in, nyet, RS_RX, RS_TX);
 	--iounit : io_dev port map (clk, cpu_wr, cpu_rd, cpu_out, cpu_in, nyet, pipe, pipe);
