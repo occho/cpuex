@@ -10,7 +10,8 @@ static char tmpbuf[COL_MAX];
 	(dst_ptr += sprintf(dst_ptr, "\t" asm_fmt_##fmt "\n", ##__VA_ARGS__))
 #define print_original(fmt, ...) \
 	(dst_ptr += sprintf(dst_ptr, fmt, ##__VA_ARGS__))
-
+#define pad_nop() \
+	print_expanded(iggi, "slli", 0,0,0)
 static inline int _inst_is(char *inst, const char *str) {
 	return strcmp(inst, str) == 0;
 }
@@ -34,7 +35,7 @@ int expand_mnemonic(char *ex_mne_buf, char *asm_buf) {
 				print_original("%s", asm_line);
 			} else { 
 				if (arch_is_pocore()) {
-					print_expanded(iggi, "slli", 0,0,0); // nop
+					pad_nop();
 				}
 				if (inst_is("nop")) {
 					print_expanded(iggi, "slli", 0,0,0);
@@ -68,13 +69,11 @@ int expand_mnemonic(char *ex_mne_buf, char *asm_buf) {
 					print_original("%s", asm_line);
 				}
 				if (arch_is_pocore()) {
-					print_expanded(iggi, "slli", 0,0,0); // nop
+					pad_nop();
 				}
 			}
 
 		} else {
-			// empty line
-			//print_original("\n");
 		}
     }
 	return (int) (dst_ptr - ex_mne_buf);

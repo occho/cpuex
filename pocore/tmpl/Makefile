@@ -13,7 +13,7 @@ ISE_MODS = ise_top u232c io_dev core_c clk_gen clk_delay \
 
 TARGET = $(OCORE_MODS:%=%.vhd) $(ISE_MODS:%=%.vhd)
 TEST_DIR = ../../test_programs
-SIM_TARGET = $(TEST_DIR)/matmul
+SIM_TARGET = $(TEST_DIR)/inprod
 
 .SUFFIXES: .s
 .SUFFIXES: .vhd .tmp

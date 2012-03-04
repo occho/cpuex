@@ -3,7 +3,7 @@
 #define __ASM_FMT_HEAD__
 
 #define	COL_MAX 512
-#define LINE_MAX (32*1024)
+#define LINE_MAX (64*1024)
 #define asm_fmt_i "%s"
 #define asm_fmt_if "%s %%f%d"
 #define asm_fmt_ig "%s %%g%d"

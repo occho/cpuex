@@ -14,7 +14,7 @@ VSIM_SPACE = ../vsim_space
 TMPL_DIR = ./tmpl
 
 
-TIME = 100us
+TIME = 10us
 .SUFFIXES: .vhd .vcd .tmp
 .PHONY: default wave vcd reload
 
@@ -38,7 +38,7 @@ ocore :
 
 ise :
 	make -C tmpl ise
-	cp $(ISE_VHDL:%=%.vhd) $(ISE_SPACE)
+	cp $(ISE_VHDL:%=%.vhd) top.ucf $(ISE_SPACE)
 
 vsim :
 	make -C tmpl vsim

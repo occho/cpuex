@@ -19,7 +19,6 @@ static inline void register_linst_setl(char *);
 static void _register_linst(char *lname, enum linst_access_t acc);
 static void exec_directive(char*, char*);
 static void resolve_label(void);
-//static void pad_nop(int, const char*);
 
 static int input_line_cnt;
 static int output_cnt;
@@ -54,9 +53,6 @@ int assemble(uint32_t *out_buf, char *asm_buf) {
 				register_label(asm_line, term0);
 			} else { 
 				encode_and_output(asm_line, term0);
-				//if (arch_is_pocore()) {
-					//pad_nop(2, "every instruction");
-				//}
 			}
 		} else {
 			// blank(empty line)
@@ -123,10 +119,6 @@ static inline void register_label(char *asm_line, char *term0) {
 			label.line = (output_cnt-1)*4;
 		} else {
 			label.line = output_cnt;
-			//if (arch_is_pocore()) {
-			// jump target
-				//pad_nop(1, "function label");
-			//}
 		}
 		if (hash_insert(label)<0) {
 			myerr("duplicate label @ register_label.hash_insert");
@@ -140,13 +132,6 @@ static inline void register_label(char *asm_line, char *term0) {
 static inline void output_data(uint32_t data) {
 	output_alias[output_cnt++] = data;
 }
-//void pad_nop(int n, const char *message) {
-	//int i;
-	//myerr("padding %d nop : %s", n, message);
-	//for (i=0; i<n; i++) {
-		//encode_and_output("\tslli %g0, %g0, 0\n", "slli");
-	//}
-//}
 static inline void encode_and_output(char*asm_line, char*term0) {
 	uint32_t ir = encode_op(asm_line, term0);
 	if (ir == 0xffffffff) {

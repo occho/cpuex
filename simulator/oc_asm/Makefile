@@ -14,7 +14,7 @@ ASM_TARGET = $(TEST_TARGET:%=$(TEST_PROGRAM_DIR)/%)
 asm:
 	$(ASM) $(ASM_TARGET).s -o $(ASM_TARGET) $(ASM_FLAGS) 
 rt:
-	$(ASM) $(MIN_RT).s -o $(MIN_RT)
+	$(ASM) $(MIN_RT).s -o $(MIN_RT) -p
 
 
 UTIL = asm_util.o

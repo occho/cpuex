@@ -27,10 +27,10 @@ ${u232c.entity()}
 
 -- sendbuf min 2048 (contest.sld & baudrate 115200)
 
-	type sendbuf_t is array (0 to 2047) of buf_rec_t;
+	type sendbuf_t is array (0 to 4095) of buf_rec_t;
 	signal sendbuf : sendbuf_t;
-	signal send_head	: std_logic_vector(10 downto 0) := (others=>'0');
-	signal send_tail	: std_logic_vector(10 downto 0) := (others=>'0');
+	signal send_head	: std_logic_vector(11 downto 0) := (others=>'0');
+	signal send_tail	: std_logic_vector(11 downto 0) := (others=>'0');
 
 	signal send_empty : std_logic := '0';
 
