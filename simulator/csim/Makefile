@@ -1,20 +1,23 @@
 ASMH = common.h asm_fmt.h oc_geso.h
-TARGET = geso
+TARGET = geso conv 
 HOME_DIR = ../
 include $(HOME_DIR)/Makefile.in
 CC = gcc
-CACHE = ../cache
+CACHE = ../../cache
 
 CFLAGS += -I $(HOME_DIR)/include/
 CXXFLAGS += -I $(HOME_DIR)/include/
 XSIM_FLAGS += -m
 vpath %.h $(HOME_DIR)/include/
 vpath %.inc inc/
-RM_TARGET = ./bin/*.x ./obj/*.o ./x86asm/*.asm ./lst/*.lst xrt
+RM_TARGET = ./bin/*.x ./obj/*.o ./x86asm/*.asm ./lst/*.lst xrt \
+			$(CONVERTED)/$(TEST)
 AS = as
+CONVERTED = ./converted
 
 LIB_OBJ = inc/lib.o inc/math.o
 ASM_TARGET = $(TEST_TARGET:%=$(TEST_PROGRAM_DIR)/%.s)
+
 
 geso: geso.o convert.o asm_fmt.o convert_op.o
 geso.o: $(ASMH) convert.o
@@ -52,9 +55,8 @@ $(TEST:%=bin/%.x): geso $(ASM_TARGET) $(LIB_OBJ) $(HOME_DIR:%=%/Makefile.in)
 		ld $$obj $(LIB_OBJ) -o $$bin; \
 	done 
 
-sim: $(TEST:%=bin/%.x)
-	for name in $(TEST) ; do \
-		bin='bin/'$$name'.x'; \
-		./$$bin; \
-	done 
+sim: $(CONVERTED)/$(TEST)
+	./$<
 	
+conv:
+	./geso $(ASM_TARGET) $(XSIM_FLAGS) -o $(CONVERTED)/$(TEST).c

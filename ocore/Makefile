@@ -24,8 +24,8 @@ CACHE = ../cache
 CSERVER = $(CACHE)/cserver 
 PICT_NAME = contest
 SLD = $(CACHE)/sldbin/$(PICT_NAME).sldbin
-PPM = $(CACHE)/ppm/p6/$(PICT_NAME).ppm
-PPM_ANS = $(CACHE)/ppm_ans/p6/$(PICT_NAME).ppm
+PPM = $(CACHE)/core_output/$(PICT_NAME).ppm
+PPM_ANS = $(CACHE)/ppm_p6_ans/$(PICT_NAME).ppm
 rt :
 	$(CSERVER) $(SLD) $(PPM) -b
 cmp :
@@ -38,7 +38,7 @@ ocore :
 
 ise :
 	make -C tmpl ise
-	cp $(ISE_VHDL:%=%.vhd) $(ISE_SPACE)
+	cp $(ISE_VHDL:%=%.vhd) top.ucf $(ISE_SPACE)
 
 vsim :
 	make -C tmpl vsim
@@ -64,4 +64,5 @@ sim:
 	make -sC $(TMPL_DIR) sim
 
 clean:
+	make -sC $(TMPL_DIR) clean
 	rm -f *.s *.o *.vcd *.cf $(TB) *.fst

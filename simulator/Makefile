@@ -1,7 +1,7 @@
 # Makefile
 
 .PHONY: all asm clean sim fsim xsim frt rt xrt
-MAKE_OPTION = -s
+MAKE_OPTION =
 
 ASM = oc_asm
 SIM = oc_sim

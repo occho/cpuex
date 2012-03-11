@@ -23,7 +23,7 @@ default: ocore
 CACHE = ../cache
 CSERVER = $(CACHE)/cserver 
 PICT_NAME = contest
-SLD = $(CACHE)/sld/$(PICT_NAME).sld
+SLD = $(CACHE)/sldbin/$(PICT_NAME).sldbin
 PPM = $(CACHE)/core_output/$(PICT_NAME).ppm
 PPM_ANS = $(CACHE)/ppm_p6_ans/$(PICT_NAME).ppm
 rt :
