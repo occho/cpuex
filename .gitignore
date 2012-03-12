@@ -1,14 +1,19 @@
 
 *.o
 *.ln
-bit/
+Makefile
+saito/
+bit1st/
+bit2nd/
 pdf/
 util/
 mycom/
 cache/
+report/
 simulator/cache/
 simulator/toNU_MA/
 compiler/
 ise_space/
 vsim_space/
 shinshu/
+test_programs/

@@ -28,7 +28,7 @@ architecture op of myfinv is
 	signal grad13  : std_logic_vector(12 downto 0);
 	signal in13    : std_logic_vector(12 downto 0);
 
-	signal mul_ret	: std_logic_vector(25 downto 0);
+	signal mul_ret	: std_logic_vector(25 downto 0) := (others=>'0');
 
 begin
 	O <= SO&EO&FO;
@@ -42,7 +42,9 @@ begin
 	grad13  <= table_out(12 downto 0);
 	in13  	<= I(12 downto 0);
 
+
 	mul_ret <= grad13 * in13;
+
 	FO <= (others=>'0') when F=0 else
 		  const23 - ("000000000"&mul_ret(25 downto 12));
 

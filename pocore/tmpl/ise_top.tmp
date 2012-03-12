@@ -8,9 +8,10 @@ use UNISIM.VComponents.all;
 	ib: IBUFG port map (i=>MCLK1, o=>iclk);
 	bg1: BUFG port map (i=>clk0, o=>clk);
 	bg2: BUFG port map (i=>clk2, o=>clk2x);
+	bg3: BUFG port map (i=>clk180, o=>clk_inv);
 	dll: CLKDLL port map (
 		  CLK0 => clk0,
-		  CLK180 => open,
+		  CLK180 => clk180,
 		  CLK270 => open,
 		  CLK2X => clk2,
 		  CLK90 => open,

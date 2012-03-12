@@ -2,17 +2,18 @@ RENDER = mako-render
 OCORE_DIR = ..
 ISE_SPACE = ../../ise_space
 VSIM_SPACE = ../../vsim_space
-ASM = ./asmcho_prom10
+ASM = ./asmcho
 SIM = ./simcho
 
-OCORE_MODS = reg_dc top u232c io_dev core_c clk_gen clk_delay \
+OCORE_MODS = reg_dc top u232c io_dev core_c \
 			 prom decode exec mem_acc sram reg_wb testbench
 			
-ISE_MODS = ise_top u232c io_dev core_c clk_gen clk_delay \
+ISE_MODS = ise_top u232c io_dev core_c \
 			decode reg_dc exec mem_acc reg_wb
 
 TARGET = $(OCORE_MODS:%=%.vhd) $(ISE_MODS:%=%.vhd)
-SIM_TARGET = ./test
+TEST_DIR = ../../test_programs
+SIM_TARGET = $(TEST_DIR)/inprod
 
 .SUFFIXES: .s
 .SUFFIXES: .vhd .tmp
@@ -26,13 +27,13 @@ SIM_TARGET = ./test
 all: $(TARGET)
 
 ocore: .ocore.stamp
-.ocore.stamp: $(OCORE_MODS:%=%.vhd)
+.ocore.stamp: $(OCORE_MODS:%=%.vhd) test
 	cp $? $(OCORE_DIR)/
 	touch .ocore.stamp
 
 ise: .ise.stamp
-.ise.stamp: $(ISE_MODS:%=%.vhd) $(SIM_TARGET).coe
-	cp $? $(ISE_SPACE)/
+.ise.stamp: $(ISE_MODS:%=%.vhd) coe
+	cp $? test.coe $(ISE_SPACE)/
 	touch .ise.stamp
 
 vsim: $(OCORE_MODS:%=%.vhd)
@@ -40,11 +41,9 @@ vsim: $(OCORE_MODS:%=%.vhd)
 
 BASE = skeleton.tmp macro.tmp
 
-CORE_C = clk_gen clk_delay prom decode reg_dc exec reg_wb mem_acc
+CORE_C = prom decode reg_dc exec reg_wb mem_acc
 core_c.vhd: core_c.tmp $(CORE_C:%=%.tmp) $(BASE)
 
-clk_gen.vhd: clk_gen.tmp $(BASE)
-clk_dly.vhd: clk_dly.tmp $(BASE)
 decode.vhd: decode.tmp $(BASE)
 reg_dc.vhd: reg_dc.tmp $(BASE)
 exec.vhd: exec.tmp $(BASE)
@@ -63,21 +62,20 @@ sram.vhd: sram.tmp $(BASE)
 testbench.vhd: testbench.tmp top.tmp sram.tmp $(BASE)
 
 .PHONY: asm
-asm : $(SIM_TARGET).coe $(SIM_TARGET)
+asm : test.coe test
 
-$(SIM_TARGET).coe: $(SIM_TARGET).s
-	$(ASM) -coe $<
-	mv $(SIM_TARGET) $(SIM_TARGET).coe
-	$(ASM) -h $<
+LINE_MIN = 4096
+.PHONY : coe
+coe: 
+	$(ASM) $(SIM_TARGET).s -c -o test.coe -p
 
-$(SIM_TARGET): $(SIM_TARGET).s
-	$(ASM) -h $<
+test: $(SIM_TARGET).s
+	$(ASM) $< -x $(LINE_MIN) -o test -l -p
 
-sim: $(SIM_TARGET)
-	$(ASM) $<.s
-	$(SIM) $(SIM_TARGET)
-	rm $<
+sim:
+	$(ASM) $(SIM_TARGET).s -l -p
+	$(SIM) ika.out
 
 .PHONY: clean
 clean:
-	$(RM) *.vhd $(SIM_TARGET) $(SIM_TARGET).coe *.lst asmlog
+	$(RM) *.vhd $(SIM_TARGET) $(SIM_TARGET).coe *.lst asmlog *.out test *.log

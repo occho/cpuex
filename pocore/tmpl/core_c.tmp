@@ -1,7 +1,5 @@
 ## -*- coding: utf-8 -*-
 <%inherit file="skeleton.tmp"/>
-<%namespace name="clk_gen" file="clk_gen.tmp"/>
-<%namespace name="clk_delay" file="clk_delay.tmp"/>
 <%namespace name="prom" file="prom.tmp"/>
 <%namespace name="decode" file="decode.tmp"/>
 <%namespace name="reg_dc" file="reg_dc.tmp"/>
@@ -14,6 +12,7 @@ entity core_c is
 	(			
 	CLK	:	in	std_logic;
 	CLK2X	:	in	std_logic;
+	CLK_INV	:	in	std_logic;
 	RESET	:	in	std_logic;
 	NYET	:	in	${oc.io_flag_t()};
 	IO_IN	:	in	${oc.io_bus_t()};
@@ -27,17 +26,9 @@ entity core_c is
 </%block>
 end core_c;
 architecture RTL of core_c is
-component clk_gen is
-${clk_gen.entity()}
-end component;
-component clk_delay is
-${clk_delay.entity()}
-end component;
-
 component prom is
 ${prom.entity()}
 end component;
-
 component decode is
 ${decode.entity()}
 end component;
@@ -53,8 +44,6 @@ end component;
 component mem_acc is
 ${mem_acc.entity()}
 end component;
-
-	signal clk_inv : std_logic;
 
 	signal	pc :	${oc.pc_t()};
 	signal	prom_out	:	${oc.ir_t()};
@@ -90,14 +79,6 @@ end component;
 
 begin			
 
--- clk(state machine)
-	process (CLK2X)
-	begin
-		if rising_edge(CLK2X) then
-			clk_inv <= clk;
-		end if;
-	end process;
-	
 -- fetch phase
 	prom_u	:	prom port map(CLK2X, pc(${oc.prom_msb()} downto 0), prom_out);
 
@@ -113,14 +94,13 @@ begin
 
 -- exec phase
 	exec_u	:	exec port map(CLK, CLK2X, RESET, ir, pc,
-		 REG_S, REG_T, REG_D, FREG_S, FREG_T, FREG_D, FramePointer, LinkRegister,
+		 REG_S, REG_T, REG_D, FREG_S, FREG_T, FREG_D, FREG_00, FramePointer, LinkRegister,
 		 LR_IN, pc, n_reg, reg_in, fr_flag, RAM_ADDR, RAM_IN, reg_cond,
 		 ram_wen);
 
 	process(CLK)
 	begin
 		if rising_edge(CLK) then
-
 			reg_cond_dly <= reg_cond;
 			n_reg_dly <= n_reg;
 			reg_in_dly <= reg_in;
@@ -129,12 +109,12 @@ begin
 	end process;
 
 -- memory access phase
-	memacc_u	: mem_acc port map (clk_inv, CLK, ram_wen, RAM_ADDR, RAM_IN,
+	memacc_u	: mem_acc port map (CLK_INV, CLK, ram_wen, RAM_ADDR, RAM_IN,
 							RAM_OUT, IO_IN, IO_WR, IO_RD, IO_OUT,
 							SRAM_ZA,SRAM_XWA,SRAM_ZD);
 	
 -- write back phase
-	regwb_u	:	reg_wb port map(CLK, RESET,
+	regwb_u	:	reg_wb port map(CLK2X, RESET,
 		 n_reg_dly, reg_in_dly, LR_IN, RAM_OUT, fr_flag_dly, reg_cond_dly,
 		 ${REGs()}, ${FREGs()}, LR_OUT);
 

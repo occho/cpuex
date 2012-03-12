@@ -38,9 +38,9 @@ static uint32_t *output_alias;
 	} while(0) 
 
 
+static char asm_line[COL_MAX];
+static char term0[COL_MAX];
 int assemble(uint32_t *out_buf, char *asm_buf) {
-	char asm_line[COL_MAX];
-	char term0[COL_MAX];
 	output_alias = out_buf;
 
 	while (mygets(asm_line, asm_buf, COL_MAX) != NULL) {
@@ -59,9 +59,7 @@ int assemble(uint32_t *out_buf, char *asm_buf) {
 		}
 		input_line_cnt++;
 	}
-
 	resolve_label();
-
 	return output_cnt;
 }
 

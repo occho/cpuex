@@ -10,6 +10,8 @@ enum out_fmt_t { OFMT_BIN, OFMT_STR_BIN, OFMT_STR_HEX, OFMT_COE, OFMT_EX_MNE };
 static enum out_fmt_t output_type = OFMT_BIN;
 enum dst_t { DST_FILE, DST_STDOUT, DST_STDERR, };
 static enum dst_t dst_flag = DST_FILE;
+enum arch_t { ARCH_OCORE, ARCH_POCORE };
+enum arch_t arch_type = ARCH_OCORE;
 
 FILE *err_fp;
 
@@ -54,7 +56,7 @@ int main(int argc, char **argv) {
 		output_file((char*)binary_data, size*4);
 	}
 	if (lst_flag>0) {
-		asm_listing(lfd, binary_data, ex_mne_buf); // reuse asm_buf
+		asm_listing(lfd, binary_data, ex_mne_buf);
 	}
 	exit(0);
 }
@@ -98,15 +100,20 @@ static void output_file(char*buf, int size) {
 			}
 			break;
 		case OFMT_STR_HEX :
-			linebuf[0] = linebuf[9] = '"';
-			linebuf[10] = ',';
-			linebuf[11] = '\n';
+			linebuf[0]='x';
+			linebuf[1] = linebuf[10] = '"';
+			linebuf[11] = ',';
+			linebuf[12] = '\n';
 			for (i=0; i<size/4; i++) {
-				set_hex(linebuf+1, buf32[i]);
-				mywrite(linebuf, 12);
+				set_hex(linebuf+2, buf32[i]);
+				if (i == size/4 -1) {
+					mywrite(linebuf, 11);
+				} else {
+					mywrite(linebuf, 13);
+				}
 			}
 			for (i=i; i<output_line_min; i++) {
-				mywrite("\"00000000\",\n", 12);
+				mywrite(",\nx\"00000000\"", 13);
 			}
 			break;
 		case OFMT_COE :
@@ -194,6 +201,7 @@ static void print_usage(char*name) {
 	print_option("-b $line_num\t: output binary string");
 	print_option("-x $line_num\t: output hexadecimal string");
 	print_option("-c $line_num\t: output coe format string");
+	print_option("-p\t: pad nop for pocore");
 	print_option("-h\t: print this usage information");
 	print_option("-m\t: output code after expanding mnemonic");
 	print_option("-q\t: don't print configure information");
@@ -203,7 +211,7 @@ static void print_usage(char*name) {
 
 static void conf_out_fmt(int argc, char** argv) {
 	int opt;
-	while ((opt = getopt(argc, argv, "lmqcbhxo:")) != -1) {
+	while ((opt = getopt(argc, argv, "lpmqcbhxo:")) != -1) {
 		switch (opt) {
 			case 'o' :
 				if (atoi(optarg) == 1) {
@@ -214,6 +222,9 @@ static void conf_out_fmt(int argc, char** argv) {
 					dst_flag = DST_FILE;
 					dfile = optarg;
 				}
+				break;
+			case 'p' :
+				arch_type = ARCH_POCORE;
 				break;
 			case 'q' :
 				be_quiet = 1;
@@ -296,11 +307,25 @@ static void print_conf(void) {
 			print_val("output_type\t: assembly after expand mnemonic");
 			break;
 		default :
-			print_val("conf_out_fmt: unexpected output_type");
+			print_val("print_conf: unexpected output_type");
 			exit(1);
 			break;
 	}
 	print_val("output_line_min\t: %d", output_line_min);
+	switch (arch_type) {
+		case ARCH_OCORE :
+			print_val("architecture\t: ocore");
+			break;
+		case ARCH_POCORE :
+			print_val("architecture\t: pocore");
+			break;
+		default :
+			print_val("print_conf: unexpected arch_type");
+			break;
+	}
 	warning("\n######################################################################\n\n");
 }
 #undef print_val
+int arch_is_pocore(void) {
+	return arch_type == ARCH_POCORE;
+}

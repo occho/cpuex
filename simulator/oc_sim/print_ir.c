@@ -18,7 +18,7 @@ void _print_ir(uint32_t ir, FILE *fp) {
 	} a, b, c;
 	*/
 	
-	fprintf(fp, "%4lx.[%4x] ", cnt, pc);
+	fprintf(fp, "%4lx.[%4x] %08X ", cnt, pc, ir);
 
 	opcode = get_opcode(ir);
 	funct = get_funct(ir);
@@ -94,6 +94,9 @@ void _print_ir(uint32_t ir, FILE *fp) {
 			break;
 		case MVLO: case MVHI:
 			print_val(igi, get_rsi(ir), _GRS, _IMM);
+			break;
+		case FMVLO: case FMVHI:
+			print_val(ifi, get_rsi(ir), _FRS, _IMM);
 			break;
 		case JEQ: case JNE: case JLT: case JLE:
 			print_val(iggl, get_rsi(ir), _GRS, get_rti(ir), _GRT, _IMM);

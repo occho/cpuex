@@ -67,6 +67,7 @@ inline uint32_t sra_eff(int rsw, int dig, uint32_t num);
 #define print_fmt_il fmtinst""fmtlabel
 #define print_fmt_iff fmtinst"f"fmtidx"="fmthex", f"fmtidx"="fmthex
 #define print_fmt_ifg fmtinst"f"fmtidx"="fmthex", g"fmtidx"="fmtdec
+#define print_fmt_ifi fmtinst"f"fmtidx"="fmthex", "fmtimm
 #define print_fmt_igf fmtinst"g"fmtidx"="fmtdec", f"fmtidx"="fmthex
 #define print_fmt_igg fmtinst"g"fmtidx"="fmtdec", g"fmtidx"="fmtdec
 #define print_fmt_igi fmtinst"g"fmtidx"="fmtdec", "fmtimm

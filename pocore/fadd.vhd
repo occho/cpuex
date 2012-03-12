@@ -30,7 +30,7 @@ architecture op of myfadd is
 	signal loserF  : std_logic_vector(23 downto 0);
 	signal rshiftedF : std_logic_vector(23 downto 0);
 
-	signal raw_frac : std_logic_vector(24 downto 0);
+	signal raw_frac : std_logic_vector(24 downto 0) := (others=>'0');
 
 	signal lswi : integer range 0 to 31; -- left shift width
 	signal lsw : std_logic_vector(4 downto 0);

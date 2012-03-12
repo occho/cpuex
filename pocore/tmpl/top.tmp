@@ -1,13 +1,21 @@
 ## -*- coding: utf-8 -*-
 <%inherit file="skeleton_top.tmp"/>
 	clk <= MCLK1;
-	clkgen: process
+	clk2x_gen: process
 	begin
 	---- initialize with '1' or '0'?
 		clk2x<='1';
 		wait for 1 ns;
 		clk2x<='0';
 		wait for 1 ns;
+	end process;
+
+	clk_inv_gen : process
+	begin
+		clk_inv<='1';
+		wait for 2 ns;
+		clk_inv<='0';
+		wait for 2 ns;
 	end process;
 <%namespace name="oc" file="macro.tmp"/>
 

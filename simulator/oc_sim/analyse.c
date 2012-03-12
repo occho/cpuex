@@ -78,6 +78,9 @@ void analyse(uint32_t ir) {
 				case MVLO: case MVHI:
 					gr_cnt[get_rsi(ir)]++;
 					break;
+				case FMVLO: case FMVHI:
+					fr_cnt[get_rsi(ir)]++;
+					break;
 				case JEQ: case JNE: case JLT: case JLE:
 					gr_cnt[get_rsi(ir)]++;
 					gr_cnt[get_rti(ir)]++;
